@@ -1,6 +1,13 @@
 # WebGL game
 
+
 ## Requirements
+
+- Browser suports WebGl. You can test on this website
+
+## Run
+
+Just open html file with browser
 
 
 ## Authors

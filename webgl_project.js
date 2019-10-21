@@ -6,23 +6,6 @@ var triangleVertexPositionBuffer = null;
 
 var triangleVertexColorBuffer = null;
 
-// The global transformation parameters
-
-// The translation vector
-
-var tx = 0.0;
-
-var ty = 0.0;
-
-var tz = 0.0;
-
-// The rotation angles in degrees
-
-var angleXX = 0.0;
-
-var angleYY = 0.0;
-
-var angleZZ = 0.0;
 
 // NEW - To allow choosing the way of drawing the model triangles
 
@@ -536,7 +519,7 @@ function setEventListeners() {
 		drawScene();
 	};
 
-	document.getElementById("reset-button").onclick = function () {
+	/*document.getElementById("reset-button").onclick = function () {
 
 		// The initial values
 
@@ -555,7 +538,7 @@ function setEventListeners() {
 		// Render the viewport
 
 		drawScene();
-	};
+	};*/
 
 
 }

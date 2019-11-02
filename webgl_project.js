@@ -11,289 +11,6 @@ var triangleVertexColorBuffer = null;
 
 var primitiveType = null;
 
-// For storing the vertices defining the triangles
-
-var vertices = [
-
-	// FRONT FACE
-
-	-0.25, -0.25, 0.25,
-
-	0.25, -0.25, 0.25,
-
-	0.25, 0.25, 0.25,
-
-
-	0.25, 0.25, 0.25,
-
-	-0.25, 0.25, 0.25,
-
-	-0.25, -0.25, 0.25,
-
-	// TOP FACE
-
-	-0.25, 0.25, 0.25,
-
-	0.25, 0.25, 0.25,
-
-	0.25, 0.25, -0.25,
-
-
-	0.25, 0.25, -0.25,
-
-	-0.25, 0.25, -0.25,
-
-	-0.25, 0.25, 0.25,
-
-	// BOTTOM FACE 
-
-	-0.25, -0.25, -0.25,
-
-	0.25, -0.25, -0.25,
-
-	0.25, -0.25, 0.25,
-
-
-	0.25, -0.25, 0.25,
-
-	-0.25, -0.25, 0.25,
-
-	-0.25, -0.25, -0.25,
-
-	// LEFT FACE 
-
-	-0.25, 0.25, 0.25,
-
-	-0.25, -0.25, -0.25,
-
-	-0.25, -0.25, 0.25,
-
-
-	-0.25, 0.25, 0.25,
-
-	-0.25, 0.25, -0.25,
-
-	-0.25, -0.25, -0.25,
-
-	// RIGHT FACE 
-
-	0.25, 0.25, -0.25,
-
-	0.25, -0.25, 0.25,
-
-	0.25, -0.25, -0.25,
-
-
-	0.25, 0.25, -0.25,
-
-	0.25, 0.25, 0.25,
-
-	0.25, -0.25, 0.25,
-
-	// BACK FACE 
-
-	-0.25, 0.25, -0.25,
-
-	0.25, -0.25, -0.25,
-
-	-0.25, -0.25, -0.25,
-
-
-	-0.25, 0.25, -0.25,
-
-	0.25, 0.25, -0.25,
-
-	0.25, -0.25, -0.25,
-];
-
-
-var tabuleiro = [
-	// FRONT FACE
-
-	-2, -0.25, 0.25,
-
-	2, -0.25, 0.25,
-
-	2, 0.25, 0.25,
-
-
-	2, 0.25, 0.25,
-
-	2, 0.25, 0.25,
-
-	2, -0.25, 0.25,
-
-	// TOP FACE
-
-	2, 0.25, 0.25,
-
-	2, 0.25, 0.25,
-
-	2, 0.25, -0.25,
-
-
-	2, 0.25, -0.25,
-
-	2, 0.25, -0.25,
-
-	2, 0.25, 0.25,
-
-	// BOTTOM FACE 
-
-	2, -0.25, -0.25,
-
-	2, -0.25, -0.25,
-
-	2, -0.25, 0.25,
-
-
-	2, -0.25, 0.25,
-
-	2, -0.25, 0.25,
-
-	2, -0.25, -0.25,
-
-	// LEFT FACE 
-
-	2, 0.25, 0.25,
-
-	2, -0.25, -0.25,
-
-	2, -0.25, 0.25,
-
-
-	2, 0.25, 0.25,
-
-	2, 0.25, -0.25,
-
-	2, -0.25, -0.25,
-
-	// RIGHT FACE 
-
-	2, 0.25, -0.25,
-
-	2, -0.25, 0.25,
-
-	2, -0.25, -0.25,
-
-
-	2, 0.25, -0.25,
-
-	2, 0.25, 0.25,
-
-	2, -0.25, 0.25,
-
-	// BACK FACE 
-
-	2, 0.25, -0.25,
-
-	2, -0.25, -0.25,
-
-	2, -0.25, -0.25,
-
-
-	2, 0.25, -0.25,
-
-	2, 0.25, -0.25,
-
-	2, -0.25, -0.25,
-];
-
-// And their colour
-
-var colors = [
-
-	// FRONT FACE
-
-	1.00, 0.00, 0.00,
-
-	1.00, 0.00, 0.00,
-
-	1.00, 0.00, 0.00,
-
-
-	1.00, 1.00, 0.00,
-
-	1.00, 1.00, 0.00,
-
-	1.00, 1.00, 0.00,
-
-	// TOP FACE
-
-	0.00, 0.00, 0.00,
-
-	0.00, 0.00, 0.00,
-
-	0.00, 0.00, 0.00,
-
-
-	0.50, 0.50, 0.50,
-
-	0.50, 0.50, 0.50,
-
-	0.50, 0.50, 0.50,
-
-	// BOTTOM FACE
-
-	0.00, 1.00, 0.00,
-
-	0.00, 1.00, 0.00,
-
-	0.00, 1.00, 0.00,
-
-
-	0.00, 1.00, 1.00,
-
-	0.00, 1.00, 1.00,
-
-	0.00, 1.00, 1.00,
-
-	// LEFT FACE
-
-	0.00, 0.00, 1.00,
-
-	0.00, 0.00, 1.00,
-
-	0.00, 0.00, 1.00,
-
-
-	1.00, 0.00, 1.00,
-
-	1.00, 0.00, 1.00,
-
-	1.00, 0.00, 1.00,
-
-	// RIGHT FACE
-
-	0.25, 0.50, 0.50,
-
-	0.25, 0.50, 0.50,
-
-	0.25, 0.50, 0.50,
-
-
-	0.50, 0.25, 0.00,
-
-	0.50, 0.25, 0.00,
-
-	0.50, 0.25, 0.00,
-
-
-	// BACK FACE
-
-	0.25, 0.00, 0.75,
-
-	0.25, 0.00, 0.75,
-
-	0.25, 0.00, 0.75,
-
-
-	0.50, 0.35, 0.35,
-
-	0.50, 0.35, 0.35,
-
-	0.50, 0.35, 0.35,
-];
 
 var cube = {
 	"vertices": vertices,
@@ -309,7 +26,7 @@ var floor = [
 
 	{
 		"vertices": tabuleiro,
-		"colors": colors,
+		"colors": colors_tabuleiro,
 		"translation": [0.0, 0.0, 0.0],
 		"rotation": [0.0, 0.0, 0.0],
 		"scale": [1.0, 1.0, 1.0],
@@ -317,7 +34,7 @@ var floor = [
 
 	{
 		"vertices": tabuleiro,
-		"colors": colors,
+		"colors": colors_tabuleiro,
 		"translation": [.5, 0.0, 0.0],
 		"rotation": [0.0, 0.0, 90.0],
 		"scale": [1.0, 1.0, 1.0],
@@ -325,7 +42,7 @@ var floor = [
 
 	{
 		"vertices": tabuleiro,
-		"colors": colors,
+		"colors": colors_tabuleiro,
 		"translation": [-.5, 0.0, 0.0],
 		"rotation": [0.0, 90.0, 0.0],
 		"scale": [1.0, 1.0, 1.0],
@@ -362,6 +79,21 @@ function initBuffers() {
 		triangleVertexColorBuffer.itemSize,
 		gl.FLOAT, false, 0, 0);
 
+
+	/* todo: ver porque que quando muda a cor no tabuleiro muda tambem no cubo pequeno
+	//colors tabuleiro
+	var triangleVertexColorBuffer_tabuleiro = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer_tabuleiro);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors_tabuleiro), gl.STATIC_DRAW);
+	triangleVertexColorBuffer_tabuleiro.itemSize = 3;
+	triangleVertexColorBuffer_tabuleiro.numItems = colors_tabuleiro.length / 3;
+
+	// Associating to the vertex shader
+
+	gl.vertexAttribPointer(shaderProgram.vertexColorAttribute,
+		triangleVertexColorBuffer_tabuleiro.itemSize,
+		gl.FLOAT, false, 0, 0);
+	*/
 }
 
 function drawModel(angleXX, angleYY, angleZZ,

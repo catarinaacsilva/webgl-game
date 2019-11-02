@@ -75,5 +75,6 @@ function initShaders( gl ) {
 	shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
 	gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 	
+	
 	return shaderProgram;
 }

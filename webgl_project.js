@@ -190,11 +190,11 @@ var list_walls = createWalls('lab00.csv');
 
 //faz o render: em vez de chamar manualmente o código é executado de x em x tempo. fps = 24 (posso por 60 mas PC fica lento...) 
 function main_loop() {
-	timeSpent += 1.0 / 24.0;
+	timeSpent += 1.0 / 24.0; // contador de tempo: se o tabuleiro estiver inclinado a bola vai deslizando
 	
 	var mvMatrix = mat4();
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	drawModel(floor, mvMatrix, primitiveType);
+	//drawModel(floor, mvMatrix, primitiveType);
 	for(var i = 0; i < list_walls.length; i++) {
 		drawModel(list_walls[i], mvMatrix, primitiveType);
 	}

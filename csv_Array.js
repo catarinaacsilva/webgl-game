@@ -98,8 +98,22 @@ function csv2array(data, delimeter) {
     return array;
 }
 
-function model_cube(data, delimeter){
-    
+// Devolve um array com os cubos
+function model_cubo(data, delimeter){
+    return csv2array('csv/cubo.csv');
 }
 
+//Devolve um array com o tabuleiro
+function model_tabuleiro(data, delimeter){
+  return csv2array('csv/tabuleiro.csv');
+}
+
+//Devolve um array com as cores do cubo
+function colors_cubo(data, delimiter){
+  return csv2array('csv/cores_cubo.csv');
+}
+
+function colors_tabuleiro(data, delimeter){
+  return csv2array('csv/cores_tabuleiro')
+}
 

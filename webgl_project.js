@@ -8,6 +8,7 @@ var triangleVertexColorBuffer = null;
 
 var primitiveType = null;
 
+//labirinto mais complexo
 var csv_file = "1,1,1,1,1,1,1\n\
 1,1,1,1,1,#,1\n\
 1,1,1,1,1,0,1\n\
@@ -27,7 +28,7 @@ var timeSpent = 0;
 
 
 // TODO: é preciso criar um buffer por cada objeto??
-// os objetos neste caso tem sido sempre os mesmos --> cubos com trabsformações
+// os objetos neste caso tem sido sempre os mesmos --> cubos com transformações
 function initBuffers() {
 	// Coordinates
 	triangleVertexPositionBuffer = gl.createBuffer();
@@ -85,7 +86,7 @@ function drawModel(model, mvMatrix, primitiveType) {
 	gl.drawArrays(primitiveType, 0, triangleVertexPositionBuffer.numItems);
 }
 
-
+//neste momento preparado para desenhar a cena: chao + paredes (vários cubos)
 function drawScene() {
 	var pMatrix;
 
@@ -135,6 +136,7 @@ function create_cube(x, y, z, sx, sy, sz, rx, ry, rz) {
 	return rv;
 }
 
+// com um cubo (create_cube) desenha o chao: no centro do eixo, com uma escala = ao tamanho do labirinto, e com rotação 60º
 function createFloor(csv_file_name) {
 	//fetch(csv_file_name).then(response => response.text()).then(text => console.log(text))
 	m = csv2array(csv_file);
@@ -145,6 +147,7 @@ function createFloor(csv_file_name) {
 	return create_cube(0, 0, 0, rows, cols, .1, -60.0, 0.0, 0.0);
 }
 
+//basicamente desenha varios cubos (semelhante à anterior): percorre as linhas e colunas do labirinto (matriz) e ajusta nas translações (x e y)
 function createWalls(csv_file_name) {
 	m = csv2array(csv_file);
 	rv = []
@@ -157,7 +160,7 @@ function createWalls(csv_file_name) {
 	return rv;
 }
 
-
+//mexer com o cursor: normalizar as posições
 function getCursorPosition(canvas, event) {
 	const rect = canvas.getBoundingClientRect()
 	const x = event.clientX - rect.left
@@ -181,9 +184,11 @@ function getCursorPosition(canvas, event) {
 	//console.log("world rz: " + world_rz+ " world rx: "+world_rx);
 }
 
+//TODO: este ficheiro com o labirinto ainda não esta a ser usado. Como ler um ficheiro? Possivel? ou só arrastar através do html (página)?
 var floor = createFloor('lab00.csv');
 var list_walls = createWalls('lab00.csv');
 
+//faz o render: em vez de chamar manualmente o código é executado de x em x tempo. fps = 24 (posso por 60 mas PC fica lento...) 
 function main_loop() {
 	timeSpent += 1.0 / 24.0;
 	

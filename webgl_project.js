@@ -118,6 +118,7 @@ function initWebGL(canvas) {
 
 		gl.enable(gl.CULL_FACE);
 		gl.cullFace(gl.BACK);
+		//projeção
 		gl.enable(gl.DEPTH_TEST);
 
 	} catch (e) {
@@ -227,4 +228,4 @@ function runWebGL() {
 	main_loop();
 }
 
-
+//TODO: ver drawscene aula 5 exemplo 20

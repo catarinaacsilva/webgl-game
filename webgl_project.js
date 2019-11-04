@@ -1,3 +1,5 @@
+// mvmatriz --> matriz global de trandformaçao
+
 var gl = null;
 
 var shaderProgram = null;
@@ -229,3 +231,64 @@ function runWebGL() {
 }
 
 //TODO: ver drawscene aula 5 exemplo 20
+/*function drawScene() {
+	
+	var pMatrix;
+	
+	var mvMatrix = mat4();
+	
+	
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
+	
+	if( projectionType == 0 ) {
+		
+
+		pMatrix = ortho( -1.0, 1.0, -1.0, 1.0, -1.0, 1.0 );
+	
+		
+		globalTz = 0;
+		
+	
+	}
+	else {	
+
+		// A standard view volume.
+		
+		// Viewer is at (0,0,0)
+		
+		// Ensure that the model is "inside" the view volume
+		
+		pMatrix = perspective( 45, 1, 0.05, 15 );
+		
+		// NEW --- Global transformation !!
+		
+		globalTz = -2.5;
+
+	}
+	
+	// Passing the Projection Matrix to apply the current projection
+	
+	var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	
+	gl.uniformMatrix4fv(pUniform, false, new Float32Array(flatten(pMatrix)));
+	
+	// NEW --- GLOBAL TRANSFORMATION FOR THE WHOLE SCENE
+	
+	mvMatrix = mult( translationMatrix( 0, 0, globalTz ),
+	                 rotationYYMatrix( globalAngleYY ) ); //trabalho do rot
+	
+	
+	drawModel( -angleXX, angleYY, angleZZ, 
+	           sx, sy, sz,
+	           tx + 0.5, ty, tz,
+	           mvMatrix,
+	           primitiveType );
+	           	       	
+	drawModel( -angleXX, -angleYY, -angleZZ,  // CW rotations
+	           sx, sy, sz,
+	           tx - 0.5, ty, tz,
+	           mvMatrix,
+	           primitiveType );
+	           	           
+}*/

@@ -29,6 +29,7 @@ var timeSpent = 0;
 
 // TODO: é preciso criar um buffer por cada objeto??
 // os objetos neste caso tem sido sempre os mesmos --> cubos com transformações
+//resposta: diferentes objetos em principio precisam de buffers diferentes --> aula8
 function initBuffers() {
 	// Coordinates
 	triangleVertexPositionBuffer = gl.createBuffer();
@@ -107,6 +108,7 @@ function drawScene() {
 		cube["translation"][0], cube["translation"][1], cube["translation"][2],
 		cube["scale"][0], cube["scale"][1], cube["scale"][2],
 		mvMatrix, primitiveType);
+
 }
 
 function initWebGL(canvas) {
@@ -116,6 +118,7 @@ function initWebGL(canvas) {
 
 		gl.enable(gl.CULL_FACE);
 		gl.cullFace(gl.BACK);
+		gl.enable(gl.DEPTH_TEST);
 
 	} catch (e) {
 	}
@@ -185,6 +188,7 @@ function getCursorPosition(canvas, event) {
 }
 
 //TODO: este ficheiro com o labirinto ainda não esta a ser usado. Como ler um ficheiro? Possivel? ou só arrastar através do html (página)?
+// resposta: normalmente nao em js no lemos ficheiros...
 var floor = createFloor('lab00.csv');
 var list_walls = createWalls('lab00.csv');
 
@@ -194,7 +198,7 @@ function main_loop() {
 	
 	var mvMatrix = mat4();
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	//drawModel(floor, mvMatrix, primitiveType);
+	drawModel(floor, mvMatrix, primitiveType);
 	for(var i = 0; i < list_walls.length; i++) {
 		drawModel(list_walls[i], mvMatrix, primitiveType);
 	}

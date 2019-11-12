@@ -1,5 +1,3 @@
-// mvmatriz --> matriz global de trandformaçao
-
 var gl = null;
 
 var shaderProgram = null;
@@ -27,18 +25,19 @@ let world_rz = 0.0, world_rx = 0.0;
 let world_width = 0.0, world_height=0.0;
 var timeSpent = 0;
 
-
-
+ 
 // TODO: é preciso criar um buffer por cada objeto??
 // os objetos neste caso tem sido sempre os mesmos --> cubos com transformações
 //resposta: diferentes objetos em principio precisam de buffers diferentes --> aula8
-function initBuffers() {
+function initBuffers(model) {
 	// Coordinates
 	triangleVertexPositionBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model_cube()), gl.STATIC_DRAW);
+	//gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model_cube()), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertices), gl.STATIC_DRAW);
 	triangleVertexPositionBuffer.itemSize = 3;
-	triangleVertexPositionBuffer.numItems = model_cube().length / 3;
+	//triangleVertexPositionBuffer.numItems = model_cube().length / 3;
+	triangleVertexPositionBuffer.numItems = model.vertices.length / 3;
 
 	// Associating to the vertex shader
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
@@ -49,9 +48,11 @@ function initBuffers() {
 
 	triangleVertexColorBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors_cube()), gl.STATIC_DRAW);
+	//gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors_cube()), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.normals, gl.STATIC_DRAW);
 	triangleVertexColorBuffer.itemSize = 3;
-	triangleVertexColorBuffer.numItems = colors_cube().length / 3;
+	//triangleVertexColorBuffer.numItems = colors_cube().length / 3;
+	triangleVertexColorBuffer.numItems = model.normals.length / 3;
 
 	// Associating to the vertex shader
 	gl.vertexAttribPointer(shaderProgram.vertexColorAttribute,
@@ -221,7 +222,8 @@ function runWebGL() {
 
 	shaderProgram = initShaders(gl);
 
-	initBuffers();
+	initBuffers(model)
+	//initBuffers();
 
 	canvas.addEventListener('mousemove', function (e) {
 		getCursorPosition(canvas, e)
@@ -231,6 +233,7 @@ function runWebGL() {
 }
 
 //TODO: ver drawscene aula 5 exemplo 20
+// mvmatriz --> matriz global de trandformaçao
 /*function drawScene() {
 	
 	var pMatrix;

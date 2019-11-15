@@ -57,7 +57,7 @@ function emptyModelFeatures() {
 	
 }
 
-unction simpleCubeModel() {
+function simpleCubeModel() {
 	
 	var cube = new emptyModelFeatures();
     
@@ -103,25 +103,39 @@ function sphereModel( subdivisionDepth = 2 ) {
 //global variable
 var sceneModels = [];
 
-function create_cube(tx, ty, sx, sy, sz){
+function create_floor(tx, ty, tz, sx, sy, sz, rx, ry, rz){
     sceneModels.push(new simpleCubeModel());
 
-    sceneModels[0].tx = tx; 
-    sceneModels[0].ty = ty;
+    sceneModels[sceneModels.length - 1].tx = tx; 
+    sceneModels[sceneModels.length - 1].ty = ty;
 
-    sceneModels[0].sx = sx;
-    sceneModels[0].sy = sy;
-    sceneModels[0].sz = sz;
+    sceneModels[sceneModels.length - 1].sx = sx;
+    sceneModels[sceneModels.length - 1].sy = sy;
+	sceneModels[sceneModels.length - 1].sz = sz;
+
+}
+
+// criar varios cubos e chama los: assim aplicam-se sempre as mesmas transformações 
+function create_walls(tx, ty, tz, sx, sy, sz, rx, ry, rz){
+    sceneModels.push(new simpleCubeModel());
+
+    sceneModels[1].tx = tx; 
+    sceneModels[1].ty = ty;
+
+    sceneModels[1].sx = sx;
+    sceneModels[1].sy = sy;
+	sceneModels[1].sz = sz;
 }
 
 
 function create_sphere(){
     sceneModels.push(new sphereModel(3));
 
-    sceneModels[1].sx = sx;
-    sceneModels[1].sy = sy;
-    sceneModels[1].sz = sz;
+    sceneModels[2].sx = sx;
+    sceneModels[2].sy = sy;
+    sceneModels[2].sz = sz;
 }
 
-
+// as rotaçoes tem que ser globais para todos
+// model é uma cena generica: depois o for no drawmodel percorre o array generico e desenha
 

@@ -1,11 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
-//
-//  Mathematical functions 
-//
-//  Ref. Original code from the Angel / Shreiner examples
-//	
-//	Additional functions by J. Madeira - Sep./Oct. 2015
-//
+//	Catarina Silva
+// 	c.alexandracorreia@ua.pt
 //////////////////////////////////////////////////////////////////////////////
 
 //----------------------------------------------------------------------------

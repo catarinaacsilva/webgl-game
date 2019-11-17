@@ -1,13 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
-//
-//  WebGL_example_24_GPU_per_vertex.js 
-//
-//  Phong Illumination Model on the GPU - Per vertex shading - Several light sources
-//
-//  Reference: E. Angel examples
-//
-//  J. Madeira - November 2017 + November 2018
-//
+//	Catarina Silva
+// 	c.alexandracorreia@ua.pt
 //////////////////////////////////////////////////////////////////////////////
 
 

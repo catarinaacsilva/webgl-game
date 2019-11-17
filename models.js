@@ -1,11 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
-//
-//  Functions for processing triangle mesh models
-//
-//	NEW VERSION - Handling just vertex coordinates
-//
-//  J. Madeira - Oct. 2015 + Nov. 2018
-//
+//	Catarina Silva
+// 	c.alexandracorreia@ua.pt
 //////////////////////////////////////////////////////////////////////////////
 
 //----------------------------------------------------------------------------

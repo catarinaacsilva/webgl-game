@@ -1,4 +1,11 @@
-// For instantiating the scene models.
+//////////////////////////////////////////////////////////////////////////////
+//
+// 
+//
+//  
+//
+//////////////////////////////////////////////////////////////////////////////
+
 
 function emptyModelFeatures() {
 
@@ -11,86 +18,169 @@ function emptyModelFeatures() {
 	// Transformation parameters
 
 	// Displacement vector
-	
+
 	this.tx = 0.0;
-	
+
 	this.ty = 0.0;
-	
-	this.tz = 0.0;	
-	
+
+	this.tz = 0.0;
+
 	// Rotation angles	
-	
+
 	this.rotAngleXX = 0.0;
-	
+
 	this.rotAngleYY = 0.0;
-	
-	this.rotAngleZZ = 0.0;	
+
+	this.rotAngleZZ = 0.0;
 
 	// Scaling factors
-	
+
 	this.sx = 1.0;
-	
+
 	this.sy = 1.0;
-	
-	this.sz = 1.0;		
-	
-	// Animation controls
-	
-	this.rotXXOn = true;
-	
-	this.rotYYOn = true;
-	
-	this.rotZZOn = true;
-	
-	this.rotXXSpeed = 1.0;
-	
-	this.rotYYSpeed = 1.0;
-	
-	this.rotZZSpeed = 1.0;
-	
-	this.rotXXDir = 1;
-	
-	this.rotYYDir = 1;
-	
-	this.rotZZDir = 1;
-	
-	
+
+	this.sz = 1.0;
+
+	// Material features
+
+	this.kAmbi = [0.2, 0.2, 0.2];
+
+	this.kDiff = [0.7, 0.7, 0.7];
+
+	this.kSpec = [0.7, 0.7, 0.7];
+
+	this.nPhong = 100;
 }
+
+function singleTriangleModel() {
+
+	var triangle = new emptyModelFeatures();
+
+	// Default model has just ONE TRIANGLE
+
+	triangle.vertices = [
+
+		// FRONTAL TRIANGLE
+
+		-0.5, -0.5, 0.5,
+
+		0.5, -0.5, 0.5,
+
+		0.5, 0.5, 0.5,
+	];
+
+	triangle.normals = [
+
+		// FRONTAL TRIANGLE
+
+		0.0, 0.0, 1.0,
+
+		0.0, 0.0, 1.0,
+
+		0.0, 0.0, 1.0,
+	];
+
+	return triangle;
+}
+
 
 function simpleCubeModel() {
-	
+
 	var cube = new emptyModelFeatures();
-    
-    //vai ao ficheiro utils para obter as coordenadas dos vertices do cubo
-	cube.vertices = model_cube();
 
-	computeVertexNormals( cube.vertices, cube.normals );
+	cube.vertices = [
+
+		-1.000000, -1.000000, 1.000000,
+		1.000000, 1.000000, 1.000000,
+		-1.000000, 1.000000, 1.000000,
+		-1.000000, -1.000000, 1.000000,
+		1.000000, -1.000000, 1.000000,
+		1.000000, 1.000000, 1.000000,
+		1.000000, -1.000000, 1.000000,
+		1.000000, -1.000000, -1.000000,
+		1.000000, 1.000000, -1.000000,
+		1.000000, -1.000000, 1.000000,
+		1.000000, 1.000000, -1.000000,
+		1.000000, 1.000000, 1.000000,
+		-1.000000, -1.000000, -1.000000,
+		-1.000000, 1.000000, -1.000000,
+		1.000000, 1.000000, -1.000000,
+		-1.000000, -1.000000, -1.000000,
+		1.000000, 1.000000, -1.000000,
+		1.000000, -1.000000, -1.000000,
+		-1.000000, -1.000000, -1.000000,
+		-1.000000, -1.000000, 1.000000,
+		-1.000000, 1.000000, -1.000000,
+		-1.000000, -1.000000, 1.000000,
+		-1.000000, 1.000000, 1.000000,
+		-1.000000, 1.000000, -1.000000,
+		-1.000000, 1.000000, -1.000000,
+		-1.000000, 1.000000, 1.000000,
+		1.000000, 1.000000, -1.000000,
+		-1.000000, 1.000000, 1.000000,
+		1.000000, 1.000000, 1.000000,
+		1.000000, 1.000000, -1.000000,
+		-1.000000, -1.000000, 1.000000,
+		-1.000000, -1.000000, -1.000000,
+		1.000000, -1.000000, -1.000000,
+		-1.000000, -1.000000, 1.000000,
+		1.000000, -1.000000, -1.000000,
+		1.000000, -1.000000, 1.000000,
+	];
+
+	computeVertexNormals(cube.vertices, cube.normals);
 
 	return cube;
 }
 
 
-function cubeModel( subdivisionDepth = 0 ) {
-	
+function cubeModel(subdivisionDepth = 0) {
 	var cube = new simpleCubeModel();
-	
-	midPointRefinement( cube.vertices, subdivisionDepth );
-	
-	computeVertexNormals( cube.vertices, cube.normals );
-	
+	midPointRefinement(cube.vertices, subdivisionDepth);
+	computeVertexNormals(cube.vertices, cube.normals);
 	return cube;
 }
 
-function sphereModel( subdivisionDepth = 2 ) {
-	
+
+function simpleTetrahedronModel() {
+	var tetra = new emptyModelFeatures();
+	tetra.vertices = [
+		-1.000000, 0.000000, -0.707000,
+		0.000000, 1.000000, 0.707000,
+		1.000000, 0.000000, -0.707000,
+		1.000000, 0.000000, -0.707000,
+		0.000000, 1.000000, 0.707000,
+		0.000000, -1.000000, 0.707000,
+		-1.000000, 0.000000, -0.707000,
+		0.000000, -1.000000, 0.707000,
+		0.000000, 1.000000, 0.707000,
+		-1.000000, 0.000000, -0.707000,
+		1.000000, 0.000000, -0.707000,
+		0.000000, -1.000000, 0.707000,
+	];
+	computeVertexNormals(tetra.vertices, tetra.normals);
+
+	return tetra;
+}
+
+
+function tetrahedronModel(subdivisionDepth = 0) {
+
+	var tetra = new simpleTetrahedronModel();
+
+	midPointRefinement(tetra.vertices, subdivisionDepth);
+
+	computeVertexNormals(tetra.vertices, tetra.normals);
+
+	return tetra;
+}
+
+
+function sphereModel(subdivisionDepth = 2) {
 	var sphere = new simpleCubeModel();
-	
-	midPointRefinement( sphere.vertices, subdivisionDepth );
-	
-	moveToSphericalSurface( sphere.vertices )
-	
-	computeVertexNormals( sphere.vertices, sphere.normals );
-	
+	midPointRefinement(sphere.vertices, subdivisionDepth);
+	moveToSphericalSurface(sphere.vertices)
+	computeVertexNormals(sphere.vertices, sphere.normals);
 	return sphere;
 }
 
@@ -100,42 +190,51 @@ function sphereModel( subdivisionDepth = 2 ) {
 //  Instantiating scene models
 //
 
-//global variable
 var sceneModels = [];
 
-function create_floor(tx, ty, tz, sx, sy, sz, rx, ry, rz){
-    sceneModels.push(new simpleCubeModel());
+function create_floor(lab) {
+	var rows = lab.length, cols = lab[0].length;
+	sceneModels.push(cubeModel());
+	sceneModels[sceneModels.length - 1].sx = 0.1 * cols;
+	sceneModels[sceneModels.length - 1].sy = 0.1 * rows;
+	sceneModels[sceneModels.length - 1].sz = 0.01;
+}
 
-    sceneModels[sceneModels.length - 1].tx = tx; 
-    sceneModels[sceneModels.length - 1].ty = ty;
+function create_player(lab) {
+	var rows = lab.length, cols = lab[0].length;
+	for (var i = 0; i < lab.length; i++) {
+		for (var j = 0; j < lab[i].length; j++) {
+			if (lab[i][j] == '*') {
+				sceneModels.push(sphereModel(3));
+				sceneModels[sceneModels.length - 1].tx = (-0.1 * (cols -1)) + j * .2;
+				sceneModels[sceneModels.length - 1].ty = (-0.1 * (rows - 1)) + i * .2;
+				sceneModels[sceneModels.length - 1].tz = 0.1;
 
-    sceneModels[sceneModels.length - 1].sx = sx;
-    sceneModels[sceneModels.length - 1].sy = sy;
-	sceneModels[sceneModels.length - 1].sz = sz;
+				// TODO: scale original 0.1
+				sceneModels[sceneModels.length - 1].sx = 0.05;
+				sceneModels[sceneModels.length - 1].sy = 0.05;
+				sceneModels[sceneModels.length - 1].sz = 0.05;
+			}
+		}
+	}
 
 }
 
-// criar varios cubos e chama los: assim aplicam-se sempre as mesmas transformações 
-function create_walls(tx, ty, tz, sx, sy, sz, rx, ry, rz){
-    sceneModels.push(new simpleCubeModel());
+function create_walls(lab) {
+	var rows = lab.length, cols = lab[0].length;
+	for (var i = 0; i < lab.length; i++) {
+		for (var j = 0; j < lab[i].length; j++) {
+			if (lab[i][j] == 1) {
+				sceneModels.push(cubeModel());
+				sceneModels[sceneModels.length - 1].tx = (-0.1 * (cols -1)) + j * .2;
+				sceneModels[sceneModels.length - 1].ty = (-0.1 * (rows - 1)) + i * .2;
+				sceneModels[sceneModels.length - 1].tz = 0.1;
 
-    sceneModels[1].tx = tx; 
-    sceneModels[1].ty = ty;
+				sceneModels[sceneModels.length - 1].sx = 0.1;
+				sceneModels[sceneModels.length - 1].sy = 0.1;
+				sceneModels[sceneModels.length - 1].sz = 0.1;
+			}
+		}
+	}
 
-    sceneModels[1].sx = sx;
-    sceneModels[1].sy = sy;
-	sceneModels[1].sz = sz;
 }
-
-
-function create_sphere(){
-    sceneModels.push(new sphereModel(3));
-
-    sceneModels[2].sx = sx;
-    sceneModels[2].sy = sy;
-    sceneModels[2].sz = sz;
-}
-
-// as rotaçoes tem que ser globais para todos
-// model é uma cena generica: depois o for no drawmodel percorre o array generico e desenha
-

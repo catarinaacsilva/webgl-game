@@ -378,6 +378,25 @@ function move_player(rows, cols, idx = 1) {
 	//sceneModels[idx].ty += vy*.001;
 }
 
+/*
+function collisions(){
+	for(i=2; i<sceneModels.length; i++){
+		if (model.tx + 0.1 > model[i]-0.1){
+			tx = model[i];
+		}
+		if (model.tx - 0.1 > model[i]-0.1){
+			tx = model[i];
+		}
+		if (model.ty + 0.1 > model[i]-0.1){
+			tx = model[i];
+		}
+		if (model.ty - 0.1 > model[i]-0.1){
+			tx = model[i];
+		}
+	}
+}
+*/
+
 //----------------------------------------------------------------------------
 //
 // Main Loop

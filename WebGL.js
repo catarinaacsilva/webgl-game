@@ -353,7 +353,7 @@ function drawScene() {
 // Move player
 
 function move_player(rows, cols, idx = 1) {
-	/*s = 0.0001;
+	s = 0.0001;
 	//vx += (world_rx - (baseXXRot)) * s;
 	vx -= ax * s;
 
@@ -373,9 +373,9 @@ function move_player(rows, cols, idx = 1) {
 		px = (rows / 2)*-.1 + 0.1;
 	} else {
 		sceneModels[idx].tx = px;
-	}*/
+	}
 	
-	//sceneModels[idx].ty += vy*.001;
+	sceneModels[idx].ty += vy*.001;
 }
 
 /*

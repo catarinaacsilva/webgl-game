@@ -13,14 +13,20 @@ var shaderProgram = null;
 var triangleVertexPositionBuffer = null;
 var triangleVertexNormalBuffer = null;
 
-// The GLOBAL transformation parameters
+// World details
+var player_scale = 0.05;
+var floor_z_scale = 0.01;
+var block_scale = 0.1;
+var lab_rows = 0;
+var lab_cols = 0;
+var first = true;
 
+// The GLOBAL transformation parameters
 var globalAngleYY = 0.0;
 var globalTz = 0.0;
 
-var baseXXRot = -45;
-
-// Player velocity...
+var baseXXRot = -50;
+// Player acceleartion and velocity...
 var ax = 0.0;
 var ay = 0.0;
 var vx = 0.0;
@@ -28,7 +34,6 @@ var vy = 0.0;
 
 var world_rz = 0.0, world_rx = 0.0, world_ry = 0.0;
 var world_width = 0.0, world_height = 0.0;
-var time_spent = 0;
 
 // GLOBAL Animation controls
 
@@ -204,28 +209,17 @@ function drawModel(model,
 	}
 
 	// Drawing 
-
 	// primitiveType allows drawing as filled triangles / wireframe / vertices
-
 	if (primitiveType == gl.LINE_LOOP) {
-
 		// To simulate wireframe drawing!
-
 		// No faces are defined! There are no hidden lines!
-
 		// Taking the vertices 3 by 3 and drawing a LINE_LOOP
-
-		var i;
-
-		for (i = 0; i < triangleVertexPositionBuffer.numItems / 3; i++) {
-
+		for (var i = 0; i < triangleVertexPositionBuffer.numItems / 3; i++) {
 			gl.drawArrays(primitiveType, 3 * i, 3);
 		}
 	}
 	else {
-
 		gl.drawArrays(primitiveType, 0, triangleVertexPositionBuffer.numItems);
-
 	}
 }
 
@@ -352,30 +346,44 @@ function drawScene() {
 //
 // Move player
 
-function move_player(rows, cols, idx = 1) {
-	s = 0.0001;
-	//vx += (world_rx - (baseXXRot)) * s;
-	vx -= ax * s;
+function move_player(idx = 1) {
+	vx += ax;
+	vy += ay;
 
-	console.log('Ax = ' + ax);
-	console.log('Vx = ' + vx);
-
-	
 	var px0 = sceneModels[idx].tx;
 	var py0 = sceneModels[idx].ty;
 
 	var px = px0 + vx;
 	var py = py0 + vy;
 
-	if(px + 0.1 > (rows / 2) * .1) {
-		px = (rows / 2)*.1 - 0.1;
-	} else if(px - 0.1 < (rows / 2) * -.1) {
-		px = (rows / 2)*-.1 + 0.1;
-	} else {
-		sceneModels[idx].tx = px;
+	if (px + player_scale > lab_cols * .1) {
+		px = px0;
+		vx = 0;
+		console.log('colision...');
 	}
-	
-	sceneModels[idx].ty += vy*.001;
+
+	if (px - player_scale < lab_cols * -.1) {
+		px = px0;
+		vx = 0;
+		console.log('colision...');
+	}
+
+	sceneModels[idx].tx = px;
+
+
+	if (py + player_scale > lab_rows * .1) {
+		py = py0;
+		vy = 0;
+		console.log('colision...');
+	}
+
+	if (py - player_scale < lab_rows * -.1) {
+		py = py0;
+		vy = 0;
+		console.log('colision...');
+	}
+
+	sceneModels[idx].ty = py;
 }
 
 /*
@@ -416,98 +424,98 @@ function main_loop() {
 //----------------------------------------------------------------------------
 
 function csv2array(data, delimeter) {
-    // Retrieve the delimeter
-    if (delimeter == undefined)
-        delimeter = ',';
-    if (delimeter && delimeter.length > 1)
-        delimeter = ',';
+	// Retrieve the delimeter
+	if (delimeter == undefined)
+		delimeter = ',';
+	if (delimeter && delimeter.length > 1)
+		delimeter = ',';
 
-    // initialize variables
-    var newline = '\n';
-    var eof = '';
-    var i = 0;
-    var c = data.charAt(i);
-    var row = 0;
-    var col = 0;
-    var array = new Array();
+	// initialize variables
+	var newline = '\n';
+	var eof = '';
+	var i = 0;
+	var c = data.charAt(i);
+	var row = 0;
+	var col = 0;
+	var array = new Array();
 
-    while (c != eof) {
-        // skip whitespaces
-        while (c == ' ' || c == '\t' || c == '\r') {
-            c = data.charAt(++i); // read next char
-        }
+	while (c != eof) {
+		// skip whitespaces
+		while (c == ' ' || c == '\t' || c == '\r') {
+			c = data.charAt(++i); // read next char
+		}
 
-        // get value
-        var value = "";
-        if (c == '\"') {
-            // value enclosed by double-quotes
-            c = data.charAt(++i);
+		// get value
+		var value = "";
+		if (c == '\"') {
+			// value enclosed by double-quotes
+			c = data.charAt(++i);
 
-            do {
-                if (c != '\"') {
-                    // read a regular character and go to the next character
-                    value += c;
-                    c = data.charAt(++i);
-                }
+			do {
+				if (c != '\"') {
+					// read a regular character and go to the next character
+					value += c;
+					c = data.charAt(++i);
+				}
 
-                if (c == '\"') {
-                    // check for escaped double-quote
-                    var cnext = data.charAt(i + 1);
-                    if (cnext == '\"') {
-                        // this is an escaped double-quote. 
-                        // Add a double-quote to the value, and move two characters ahead.
-                        value += '\"';
-                        i += 2;
-                        c = data.charAt(i);
-                    }
-                }
-            }
-            while (c != eof && c != '\"');
+				if (c == '\"') {
+					// check for escaped double-quote
+					var cnext = data.charAt(i + 1);
+					if (cnext == '\"') {
+						// this is an escaped double-quote. 
+						// Add a double-quote to the value, and move two characters ahead.
+						value += '\"';
+						i += 2;
+						c = data.charAt(i);
+					}
+				}
+			}
+			while (c != eof && c != '\"');
 
-            if (c == eof) {
-                throw "Unexpected end of data, double-quote expected";
-            }
+			if (c == eof) {
+				throw "Unexpected end of data, double-quote expected";
+			}
 
-            c = data.charAt(++i);
-        }
-        else {
-            // value without quotes
-            while (c != eof && c != delimeter && c != newline && c != ' ' && c != '\t' && c != '\r') {
-                value += c;
-                c = data.charAt(++i);
-            }
-        }
+			c = data.charAt(++i);
+		}
+		else {
+			// value without quotes
+			while (c != eof && c != delimeter && c != newline && c != ' ' && c != '\t' && c != '\r') {
+				value += c;
+				c = data.charAt(++i);
+			}
+		}
 
-        // add the value to the array
-        if (array.length <= row)
-            array.push(new Array());
-        array[row].push(value);
+		// add the value to the array
+		if (array.length <= row)
+			array.push(new Array());
+		array[row].push(value);
 
-        // skip whitespaces
-        while (c == ' ' || c == '\t' || c == '\r') {
-            c = data.charAt(++i);
-        }
+		// skip whitespaces
+		while (c == ' ' || c == '\t' || c == '\r') {
+			c = data.charAt(++i);
+		}
 
-        // go to the next row or column
-        if (c == delimeter) {
-            // to the next column
-            col++;
-        }
-        else if (c == newline) {
-            // to the next row
-            col = 0;
-            row++;
-        }
-        else if (c != eof) {
-            // unexpected character
-            throw "Delimiter expected after character " + i;
-        }
+		// go to the next row or column
+		if (c == delimeter) {
+			// to the next column
+			col++;
+		}
+		else if (c == newline) {
+			// to the next row
+			col = 0;
+			row++;
+		}
+		else if (c != eof) {
+			// unexpected character
+			throw "Delimiter expected after character " + i;
+		}
 
-        // go to the next character
-        c = data.charAt(++i);
-    }
+		// go to the next character
+		c = data.charAt(++i);
+	}
 
-    return array;
+	return array;
 }
 
 //----------------------------------------------------------------------------
@@ -519,43 +527,45 @@ function getCursorPosition(canvas, event) {
 	const s = 16;
 
 	if (x > (world_width / 2)) {
-		world_rz = -s * ((x - (world_width / 2)) / (world_width / 2))
+		world_rz = -s * ((x - (world_width / 2)) / (world_width / 2));
+		ax = 0.001;
 	} else {
-		world_rz = s * (((world_width / 2) - x) / (world_width / 2))
+		world_rz = s * (((world_width / 2) - x) / (world_width / 2));
+		ax = -0.001;
 	}
 
 	if (y > world_height / 2) {
-		world_rx = baseXXRot + s * ((y - (world_height / 2)) / (world_height / 2))
-		ax = (y - (world_height / 2)) / (world_height / 2);
+		world_rx = baseXXRot + s * ((y - (world_height / 2)) / (world_height / 2));
+		ay = -0.001;
 	} else {
-		world_rx = baseXXRot + -s * (((world_height / 2) - y) / (world_height / 2))
-		ax = ((world_height / 2) - y) / (world_height / 2);
+		world_rx = baseXXRot + -s * (((world_height / 2) - y) / (world_height / 2));
+		ay = 0.001;
 	}
 
 	//console.log("world rz: " + world_rz+ " world rx: "+world_rx);
 }
 
 function dragover_handler(ev) {
-    ev.stopPropagation();
-    ev.preventDefault();
-    ev.dataTransfer.dropEffect = 'copy';
+	ev.stopPropagation();
+	ev.preventDefault();
+	ev.dataTransfer.dropEffect = 'copy';
 }
 
 function drop_handler(ev) {
-    ev.preventDefault();
-    var files = ev.dataTransfer.files;
-    var reader = new FileReader();
-    reader.readAsText(files[0]);
-    reader.onload = loadHandler;
-    reader.onerror = errorHandler;
+	ev.preventDefault();
+	var files = ev.dataTransfer.files;
+	var reader = new FileReader();
+	reader.readAsText(files[0]);
+	reader.onload = loadHandler;
 }
 
 function loadHandler(event) {
-    var csv = event.target.result;
-    console.log(csv);
-    var array = csv2array(csv);
-    console.log(array);
-    start_game(array);
+	var csv = event.target.result;
+	console.log(csv);
+	var array = csv2array(csv);
+	console.log(array);
+	reset_scene();
+	start_game(array);
 }
 
 function setEventListeners() {
@@ -620,18 +630,31 @@ function initWebGL(canvas) {
 //----------------------------------------------------------------------------
 
 function runWebGL() {
-	//var lab=[[1,1,1], [1,1,1], [1,1,1]]; 
 	var canvas = document.getElementById("my-canvas");
 	initWebGL(canvas);
 	shaderProgram = initShaders(gl);
 	setEventListeners();
 }
 
+function reset_scene() {
+	// reset variables and scene
+	vx = 0;
+	vy = 0;
+	ax = 0;
+	ay = 0;
+	sceneModels = [];
+}
+
 function start_game(lab) {
+	lab_rows = lab.length
+	lab_cols = lab[0].length;
 	create_floor(lab);
 	create_player(lab);
 	create_walls(lab);
-	main_loop();
+	if(first){
+		first = false;
+		main_loop();
+	}
 }
 
 

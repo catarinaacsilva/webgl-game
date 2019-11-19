@@ -194,7 +194,7 @@ function create_floor(lab) {
 	sceneModels.push(cubeModel());
 	sceneModels[sceneModels.length - 1].sx = 0.1 * cols;
 	sceneModels[sceneModels.length - 1].sy = 0.1 * rows;
-	sceneModels[sceneModels.length - 1].sz = 0.01;
+	sceneModels[sceneModels.length - 1].sz = floor_z_scale;
 }
 
 function create_player(lab) {
@@ -203,14 +203,13 @@ function create_player(lab) {
 		for (var j = 0; j < lab[i].length; j++) {
 			if (lab[i][j] == '*') {
 				sceneModels.push(sphereModel(3));
-				sceneModels[sceneModels.length - 1].tx = (-0.1 * (cols -1)) + j * .2;
-				sceneModels[sceneModels.length - 1].ty = (-0.1 * (rows - 1)) + i * .2;
-				sceneModels[sceneModels.length - 1].tz = 0.1;
+				sceneModels[sceneModels.length - 1].tx = (-player_scale * (cols -1)) + j * 2*player_scale;
+				sceneModels[sceneModels.length - 1].ty = (-player_scale * (rows - 1)) + i * 2*player_scale;
+				sceneModels[sceneModels.length - 1].tz = floor_z_scale;
 
-				// TODO: scale original 0.1
-				sceneModels[sceneModels.length - 1].sx = 0.05;
-				sceneModels[sceneModels.length - 1].sy = 0.05;
-				sceneModels[sceneModels.length - 1].sz = 0.05;
+				sceneModels[sceneModels.length - 1].sx = player_scale;
+				sceneModels[sceneModels.length - 1].sy = player_scale;
+				sceneModels[sceneModels.length - 1].sz = player_scale;
 			}
 		}
 	}

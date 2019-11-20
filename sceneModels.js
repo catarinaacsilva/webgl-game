@@ -192,28 +192,36 @@ var sceneModels = [];
 function create_floor(lab) {
 	var rows = lab.length, cols = lab[0].length;
 	sceneModels.push(cubeModel());
-	sceneModels[sceneModels.length - 1].sx = 0.1 * cols;
-	sceneModels[sceneModels.length - 1].sy = 0.1 * rows;
+	sceneModels[sceneModels.length - 1].sx = block_scale * cols;
+	sceneModels[sceneModels.length - 1].sy = block_scale * rows;
 	sceneModels[sceneModels.length - 1].sz = floor_z_scale;
 }
 
 function create_player(lab) {
 	var rows = lab.length, cols = lab[0].length;
-	for (var i = 0; i < lab.length; i++) {
-		for (var j = 0; j < lab[i].length; j++) {
+	abort = false;
+	for (var i = 0; i < lab.length && !abort; i++) {
+		for (var j = 0; j < lab[i].length && !abort; j++) {
 			if (lab[i][j] == '*') {
 				sceneModels.push(sphereModel(3));
-				sceneModels[sceneModels.length - 1].tx = (-player_scale * (cols -1)) + j * 2*player_scale;
-				sceneModels[sceneModels.length - 1].ty = (-player_scale * (rows - 1)) + i * 2*player_scale;
-				sceneModels[sceneModels.length - 1].tz = floor_z_scale;
+				sceneModels[sceneModels.length - 1].tx = (-player_scale * (cols - 1)) + j * 2 * player_scale;
+				sceneModels[sceneModels.length - 1].ty = (-player_scale * (rows - 1)) + i * 2 * player_scale;
+				sceneModels[sceneModels.length - 1].tz = player_scale;
 
 				sceneModels[sceneModels.length - 1].sx = player_scale;
 				sceneModels[sceneModels.length - 1].sy = player_scale;
 				sceneModels[sceneModels.length - 1].sz = player_scale;
+				
+				// Initial position of the player
+				px0 = sceneModels[sceneModels.length - 1].tx;
+				py0 = sceneModels[sceneModels.length - 1].ty;
+
+				// the loop can break
+				// only one player allowed...
+				abort = true;
 			}
 		}
 	}
-
 }
 
 function create_walls(lab) {
@@ -222,13 +230,13 @@ function create_walls(lab) {
 		for (var j = 0; j < lab[i].length; j++) {
 			if (lab[i][j] == 1) {
 				sceneModels.push(cubeModel());
-				sceneModels[sceneModels.length - 1].tx = (-0.1 * (cols -1)) + j * .2;
-				sceneModels[sceneModels.length - 1].ty = (-0.1 * (rows - 1)) + i * .2;
-				sceneModels[sceneModels.length - 1].tz = 0.1;
+				sceneModels[sceneModels.length - 1].tx = (-block_scale * (cols - 1)) + j * 2 * block_scale;
+				sceneModels[sceneModels.length - 1].ty = (-block_scale * (rows - 1)) + i * 2 * block_scale;
+				sceneModels[sceneModels.length - 1].tz = block_scale;
 
-				sceneModels[sceneModels.length - 1].sx = 0.1;
-				sceneModels[sceneModels.length - 1].sy = 0.1;
-				sceneModels[sceneModels.length - 1].sz = 0.1;
+				sceneModels[sceneModels.length - 1].sx = block_scale;
+				sceneModels[sceneModels.length - 1].sy = block_scale;
+				sceneModels[sceneModels.length - 1].sz = block_scale;
 			}
 		}
 	}

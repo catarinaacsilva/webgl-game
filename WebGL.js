@@ -27,6 +27,8 @@ var globalTz = 0.0;
 
 var baseXXRot = -50;
 // Player acceleartion and velocity...
+var px0 = 0.0;
+var py0 = 0.0;
 var ax = 0.0;
 var ay = 0.0;
 var vx = 0.0;
@@ -350,8 +352,8 @@ function move_player(idx = 1) {
 	vx += ax;
 	vy += ay;
 
-	var px0 = sceneModels[idx].tx;
-	var py0 = sceneModels[idx].ty;
+	px0 = sceneModels[idx].tx;
+	py0 = sceneModels[idx].ty;
 
 	var px = px0 + vx;
 	var py = py0 + vy;
@@ -359,13 +361,12 @@ function move_player(idx = 1) {
 	if (px + player_scale > lab_cols * .1) {
 		px = px0;
 		vx = 0;
-		console.log('colision...');
 	}
 
 	if (px - player_scale < lab_cols * -.1) {
 		px = px0;
 		vx = 0;
-		console.log('colision...');
+
 	}
 
 	sceneModels[idx].tx = px;
@@ -374,36 +375,110 @@ function move_player(idx = 1) {
 	if (py + player_scale > lab_rows * .1) {
 		py = py0;
 		vy = 0;
-		console.log('colision...');
 	}
 
 	if (py - player_scale < lab_rows * -.1) {
 		py = py0;
 		vy = 0;
-		console.log('colision...');
 	}
 
 	sceneModels[idx].ty = py;
 }
 
-/*
-function collisions(){
-	for(i=2; i<sceneModels.length; i++){
-		if (model.tx + 0.1 > model[i]-0.1){
-			tx = model[i];
-		}
-		if (model.tx - 0.1 > model[i]-0.1){
-			tx = model[i];
-		}
-		if (model.ty + 0.1 > model[i]-0.1){
-			tx = model[i];
-		}
-		if (model.ty - 0.1 > model[i]-0.1){
-			tx = model[i];
+// CIRCLE/RECTANGLE
+// source: http://www.jeffreythompson.org/collision-detection/circle-rect.php
+function collision_circle_rect(cx, cy, radius, rect) {
+	// temporary variables to set edges for testing
+	var testX = cx;
+	var testY = cy;
+
+
+	var rx = rect.tx - rect.sx;
+	var ry = rect.ty + rect.sy;
+	var rw = 2*rect.sx;
+	var rh = 2*rect.sy;
+
+	var side1 = '', side2 = ''
+
+	// which edge is closest?
+	// test left edge
+	if (cx < rx) {
+		testX = rx;
+		side1 = 'left';
+	}
+	// right edge 
+	else if (cx > rx + rw){
+		testX = rx + rw;
+		side1 = 'right';
+	}
+	
+	// top edge
+	if (cy < ry) {
+		testY = ry;
+		side2 = 'top';
+	}
+	// bottom edge
+	else if (cy > ry + rh) {
+		testY = ry + rh;
+		side2 = 'bottom'
+	}   
+
+	// get distance from closest edges
+	var distX = cx - testX;
+	var distY = cy - testY;
+	var distance = Math.sqrt((distX * distX) + (distY * distY));
+
+	// if the distance is less than the radius, collision!
+	if (distance <= radius) {
+		return [true, side1, side2, distance];
+	}
+	return [false, side1, side2,  0];
+}
+
+function collisions(player_idx = 1, wall_idx = 2) {
+	var px = sceneModels[player_idx].tx, py = sceneModels[player_idx].ty;
+	var t = player_scale + Math.sqrt(block_scale*block_scale);
+	var close_walls = [];
+
+	for (var i = wall_idx; i < sceneModels.length; i++) {
+		var d = Math.sqrt(Math.pow(px - sceneModels[i].tx, 2) + Math.pow(py - sceneModels[i].ty, 2));
+		if (d < t) {
+			close_walls.push(sceneModels[i])
 		}
 	}
+
+	for (var i = 0; i < close_walls.length; i++) {
+		rv = collision_circle_rect(px, py, player_scale, close_walls[i])
+		if (rv[0]) {
+
+			if(rv[2] == 'top') {
+				py = py0;
+				vy = 0;
+			}
+			
+			if(rv[2] == 'bottom') {
+				py = py0;
+				vy = 0;
+			}
+			
+			if(rv[1] == 'left') {
+				px = px0;
+				vx = 0;
+			}
+			
+			if(rv[1] == 'right') {
+				px = px0;
+				vx = 0;
+			}
+
+			console.log(rv[1], rv[2])
+		}
+	}
+
+	sceneModels[player_idx].tx = px;
+	sceneModels[player_idx].ty = py;
 }
-*/
+
 
 //----------------------------------------------------------------------------
 //
@@ -411,6 +486,7 @@ function collisions(){
 
 function main_loop() {
 	move_player();
+	collisions();
 	drawScene();
 	requestAnimFrame(main_loop);
 }
@@ -420,7 +496,6 @@ function main_loop() {
 //
 //  User Interaction
 //
-
 //----------------------------------------------------------------------------
 
 function csv2array(data, delimeter) {
@@ -651,7 +726,7 @@ function start_game(lab) {
 	create_floor(lab);
 	create_player(lab);
 	create_walls(lab);
-	if(first){
+	if (first) {
 		first = false;
 		main_loop();
 	}

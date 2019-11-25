@@ -24,11 +24,9 @@ var first = true;
 // The GLOBAL transformation parameters
 var globalAngleYY = 0.0;
 var globalTz = 0.0;
-
 var baseXXRot = -50;
+var baseYYRot = 0;
 // Player acceleartion and velocity...
-var px0 = 0.0;
-var py0 = 0.0;
 var ax = 0.0;
 var ay = 0.0;
 var vx = 0.0;
@@ -37,60 +35,37 @@ var vy = 0.0;
 var world_rz = 0.0, world_rx = 0.0, world_ry = 0.0;
 var world_width = 0.0, world_height = 0.0;
 
-// GLOBAL Animation controls
-
-var globalRotationYY_ON = 0;
-
-var globalRotationYY_DIR = 1;
-
-var globalRotationYY_SPEED = 1;
-
 // To allow choosing the way of drawing the model triangles
-
 var primitiveType = null;
 
 // To allow choosing the projection type
-
-var projectionType = 0;
-
-// NEW --- The viewer position
-
+var projectionType = 1;
 // It has to be updated according to the projection type
-
 var pos_Viewer = [0.0, 0.0, 0.0, 1.0];
 
 
 //----------------------------------------------------------------------------
-//
-// NEW - To count the number of frames per second (fps)
-//
-
 var elapsedTime = 0;
-
 var frameCount = 0;
+var lastfpsTime = null;
+var delta_time = 0;
 
-var lastfpsTime = new Date().getTime();;
-
-
-function countFrames() {
-
-	var now = new Date().getTime();
-
-	frameCount++;
-
-	elapsedTime += (now - lastfpsTime);
-
-	lastfpsTime = now;
-
-	if (elapsedTime >= 1000) {
-
-		fps = frameCount;
-
-		frameCount = 0;
-
-		elapsedTime -= 1000;
-
-		document.getElementById('fps').innerHTML = 'fps:' + fps;
+function countFrames(now) {
+	if (now) {
+		if (!lastfpsTime) {
+			lastfpsTime = now;
+		}
+		frameCount++;
+		delta_time = now - lastfpsTime
+		elapsedTime += delta_time;
+		lastfpsTime = now;
+		//console.log('Now = ' + now + ' lastfpsTime = ' + lastfpsTime + ' ET =' + elapsedTime);
+		if (elapsedTime >= 1000) {
+			fps = frameCount;
+			frameCount = 0;
+			elapsedTime -= 1000;
+			document.getElementById('fps').innerHTML = 'fps:' + fps;
+		}
 	}
 }
 
@@ -110,7 +85,6 @@ function countFrames() {
 function initBuffers(model) {
 
 	// Vertex Coordinates
-
 	triangleVertexPositionBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertices), gl.STATIC_DRAW);
@@ -118,13 +92,11 @@ function initBuffers(model) {
 	triangleVertexPositionBuffer.numItems = model.vertices.length / 3;
 
 	// Associating to the vertex shader
-
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
 		triangleVertexPositionBuffer.itemSize,
 		gl.FLOAT, false, 0, 0);
 
 	// Vertex Normal Vectors
-
 	triangleVertexNormalBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexNormalBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.normals), gl.STATIC_DRAW);
@@ -132,7 +104,6 @@ function initBuffers(model) {
 	triangleVertexNormalBuffer.numItems = model.normals.length / 3;
 
 	// Associating to the vertex shader
-
 	gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute,
 		triangleVertexNormalBuffer.itemSize,
 		gl.FLOAT, false, 0, 0);
@@ -142,42 +113,26 @@ function initBuffers(model) {
 
 //  Drawing the model
 
-function drawModel(model,
-	mvMatrix,
-	primitiveType) {
-
+function drawModel(model, mvMatrix, primitiveType) {
 	// The the global model transformation is an input
-
 	// Concatenate with the particular model transformations
-
 	// Pay attention to transformation order !!
-
 	mvMatrix = mult(mvMatrix, translationMatrix(model.tx, model.ty, model.tz));
-
 	mvMatrix = mult(mvMatrix, rotationZZMatrix(model.rotAngleZZ));
-
 	mvMatrix = mult(mvMatrix, rotationYYMatrix(model.rotAngleYY));
-
 	mvMatrix = mult(mvMatrix, rotationXXMatrix(model.rotAngleXX));
-
 	mvMatrix = mult(mvMatrix, scalingMatrix(model.sx, model.sy, model.sz));
 
 	// Passing the Model View Matrix to apply the current transformation
-
 	var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-
 	gl.uniformMatrix4fv(mvUniform, false, new Float32Array(flatten(mvMatrix)));
 
 	// Associating the data to the vertex shader
-
 	// This can be done in a better way !!
-
 	// Vertex Coordinates and Vertex Normal Vectors
-
 	initBuffers(model);
 
 	// Material properties
-
 	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_ambient"),
 		flatten(model.kAmbi));
 
@@ -191,14 +146,11 @@ function drawModel(model,
 		model.nPhong);
 
 	// Light Sources
-
 	var numLights = lightSources.length;
-
 	gl.uniform1i(gl.getUniformLocation(shaderProgram, "numLights"),
 		numLights);
 
 	//Light Sources
-
 	for (var i = 0; i < lightSources.length; i++) {
 		gl.uniform1i(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].isOn"),
 			lightSources[i].isOn);
@@ -230,19 +182,12 @@ function drawModel(model,
 //  Drawing the 3D scene
 
 function drawScene() {
-
 	var pMatrix;
-
 	var mvMatrix = mat4();
-
 	// Clearing the frame-buffer and the depth-buffer
-
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
 	// Computing the Projection Matrix
-
 	if (projectionType == 0) {
-
 		// For now, the default orthogonal view volume
 
 		pMatrix = ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
@@ -338,145 +283,92 @@ function drawScene() {
 			mvMatrix,
 			primitiveType);
 	}
-
-	// NEW - Counting the frames
-
-	countFrames();
 }
 
 //----------------------------------------------------------------------------
 //
 // Move player
 
+function radians_to_degrees(radians)
+{
+  var pi = Math.PI;
+  return radians * (180/pi);
+}
+
 function move_player(idx = 1) {
 	vx += ax;
 	vy += ay;
 
-	px0 = sceneModels[idx].tx;
-	py0 = sceneModels[idx].ty;
+	var px0 = sceneModels[idx].tx;
+	var py0 = sceneModels[idx].ty;
 
-	var px = px0 + vx;
-	var py = py0 + vy;
+	var px = px0 + vx * delta_time;
+	var py = py0 + vy * delta_time;
 
-	if (px + player_scale > lab_cols * .1) {
-		px = px0;
-		vx = 0;
+	// check for collisions in YY
+	// Check collisions with the world limits
+	if (py + player_scale > lab_rows * block_scale) {
+		py = py0;
+		vy = 0;
+	} else if (py - player_scale < lab_rows * -block_scale) {
+		py = py0;
+		vy = 0;
+	} else {
+		// check collisions with the world walls (closest wall)
+		var candidates = tree.nearest({ x: px0, y: py }, 1, player_scale + Math.sqrt(block_scale * block_scale));
+		if (candidates.length > 0) {
+			if (collision(px0, py, candidates[0][0].x, candidates[0][0].y)) {
+				py = py0;
+				vy = 0;
+			}
+		}
 	}
 
-	if (px - player_scale < lab_cols * -.1) {
+	// check for collisions in XX
+	// Check collisions with the world limits
+	if (px + player_scale > lab_cols * block_scale) {
 		px = px0;
 		vx = 0;
-
+	} else if (px - player_scale < lab_cols * -block_scale) {
+		px = px0;
+		vx = 0;
+	} else {
+		// check collisions with the world walls (closest wall)
+		var candidates = tree.nearest({ x: px, y: py }, 1, player_scale + Math.sqrt(block_scale * block_scale));
+		if (candidates.length > 0) {
+			if (collision(px, py, candidates[0][0].x, candidates[0][0].y)) {
+				px = px0;
+				vx = 0;
+			}
+		}
 	}
 
 	sceneModels[idx].tx = px;
-
-
-	if (py + player_scale > lab_rows * .1) {
-		py = py0;
-		vy = 0;
-	}
-
-	if (py - player_scale < lab_rows * -.1) {
-		py = py0;
-		vy = 0;
-	}
-
 	sceneModels[idx].ty = py;
+
+	// animate player
+	delta_theta_x = (px - px0) / player_scale;
+	delta_theta_y = (py - py0) / player_scale;
+
+	sceneModels[idx].rotAngleYY += radians_to_degrees(delta_theta_x);
+	sceneModels[idx].rotAngleXX += radians_to_degrees(-delta_theta_y);
 }
 
-// CIRCLE/RECTANGLE
-// source: http://www.jeffreythompson.org/collision-detection/circle-rect.php
-function collision_circle_rect(cx, cy, radius, rect) {
-	// temporary variables to set edges for testing
-	var testX = cx;
-	var testY = cy;
-
-
-	var rx = rect.tx - rect.sx;
-	var ry = rect.ty + rect.sy;
-	var rw = 2*rect.sx;
-	var rh = 2*rect.sy;
-
-	var side1 = '', side2 = ''
-
-	// which edge is closest?
-	// test left edge
-	if (cx < rx) {
-		testX = rx;
-		side1 = 'left';
-	}
-	// right edge 
-	else if (cx > rx + rw){
-		testX = rx + rw;
-		side1 = 'right';
-	}
-	
-	// top edge
-	if (cy < ry) {
-		testY = ry;
-		side2 = 'top';
-	}
-	// bottom edge
-	else if (cy > ry + rh) {
-		testY = ry + rh;
-		side2 = 'bottom'
-	}   
-
-	// get distance from closest edges
-	var distX = cx - testX;
-	var distY = cy - testY;
-	var distance = Math.sqrt((distX * distX) + (distY * distY));
-
-	// if the distance is less than the radius, collision!
-	if (distance <= radius) {
-		return [true, side1, side2, distance];
-	}
-	return [false, side1, side2,  0];
+function clamp(value, minimum, maximum) {
+	return Math.max(minimum, Math.min(maximum, value))
 }
 
-function collisions(player_idx = 1, wall_idx = 2) {
-	var px = sceneModels[player_idx].tx, py = sceneModels[player_idx].ty;
-	var t = player_scale + Math.sqrt(block_scale*block_scale);
-	var close_walls = [];
-
-	for (var i = wall_idx; i < sceneModels.length; i++) {
-		var d = Math.sqrt(Math.pow(px - sceneModels[i].tx, 2) + Math.pow(py - sceneModels[i].ty, 2));
-		if (d < t) {
-			close_walls.push(sceneModels[i])
-		}
+function collision(cx, cy, rx, ry) {
+	var difference_x = cx - rx, difference_y = cy - ry;
+	var clamped_x = clamp(difference_x, -block_scale, block_scale),
+		clamped_y = clamp(difference_y, -block_scale, block_scale);
+	var closest_x = rx + clamped_x, closest_y = ry + clamped_y;
+	var distance = Math.sqrt(Math.pow(closest_x - cx, 2) + Math.pow(closest_y - cy, 2));
+	if (distance < player_scale) {
+		return true;
+	} else {
+		return false;
 	}
-
-	for (var i = 0; i < close_walls.length; i++) {
-		rv = collision_circle_rect(px, py, player_scale, close_walls[i])
-		if (rv[0]) {
-
-			if(rv[2] == 'top') {
-				py = py0;
-				vy = 0;
-			}
-			
-			if(rv[2] == 'bottom') {
-				py = py0;
-				vy = 0;
-			}
-			
-			if(rv[1] == 'left') {
-				px = px0;
-				vx = 0;
-			}
-			
-			if(rv[1] == 'right') {
-				px = px0;
-				vx = 0;
-			}
-
-			console.log(rv[1], rv[2])
-		}
-	}
-
-	sceneModels[player_idx].tx = px;
-	sceneModels[player_idx].ty = py;
 }
 
 
@@ -484,9 +376,9 @@ function collisions(player_idx = 1, wall_idx = 2) {
 //
 // Main Loop
 
-function main_loop() {
+function main_loop(now) {
+	countFrames(now);
 	move_player();
-	collisions();
 	drawScene();
 	requestAnimFrame(main_loop);
 }
@@ -595,6 +487,12 @@ function csv2array(data, delimeter) {
 
 //----------------------------------------------------------------------------
 
+function degrees_to_radians(degrees)
+{
+  var pi = Math.PI;
+  return degrees * (pi/180);
+}
+
 function getCursorPosition(canvas, event) {
 	const rect = canvas.getBoundingClientRect()
 	const x = event.clientX - rect.left
@@ -602,22 +500,22 @@ function getCursorPosition(canvas, event) {
 	const s = 16;
 
 	if (x > (world_width / 2)) {
-		world_rz = -s * ((x - (world_width / 2)) / (world_width / 2));
-		ax = 0.001;
+		var theta =  ((x - (world_width / 2)) / (world_width / 2)) * -s;
+		world_rz = baseYYRot + theta;
 	} else {
-		world_rz = s * (((world_width / 2) - x) / (world_width / 2));
-		ax = -0.001;
+		var theta = (((world_width / 2) - x) / (world_width / 2)) * s;
+		world_rz = baseYYRot + theta;
 	}
+	ax = -9.8 * Math.sin(degrees_to_radians(theta)) * 0.0001;
 
 	if (y > world_height / 2) {
-		world_rx = baseXXRot + s * ((y - (world_height / 2)) / (world_height / 2));
-		ay = -0.001;
+		var theta = ((y - (world_height / 2)) / (world_height / 2)) * s;
+		world_rx = baseXXRot + theta;
 	} else {
-		world_rx = baseXXRot + -s * (((world_height / 2) - y) / (world_height / 2));
-		ay = 0.001;
+		var theta = (((world_height / 2) - y) / (world_height / 2)) *-s;
+		world_rx = baseXXRot + theta;	
 	}
-
-	//console.log("world rz: " + world_rz+ " world rx: "+world_rx);
+	ay = -9.8 * Math.sin(degrees_to_radians(theta)) * 0.0001;
 }
 
 function dragover_handler(ev) {
@@ -637,7 +535,7 @@ function drop_handler(ev) {
 function loadHandler(event) {
 	var csv = event.target.result;
 	console.log(csv);
-	var array = csv2array(csv);
+	var array = csv2array(csv).reverse();
 	console.log(array);
 	reset_scene();
 	start_game(array);
@@ -664,37 +562,21 @@ function setEventListeners() {
 
 function initWebGL(canvas) {
 	try {
-
 		// Create the WebGL context
-
 		// Some browsers still need "experimental-webgl"
-
 		gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-
 		// DEFAULT: The viewport occupies the whole canvas 
-
 		// DEFAULT: The viewport background color is WHITE
-
 		// NEW - Drawing the triangles defining the model
-
 		primitiveType = gl.TRIANGLES;
-
 		// DEFAULT: Face culling is DISABLED
-
 		// Enable FACE CULLING
-
 		gl.enable(gl.CULL_FACE);
-
 		// DEFAULT: The BACK FACE is culled!!
-
 		// The next instruction is not needed...
-
 		gl.cullFace(gl.BACK);
-
 		// Enable DEPTH-TEST
-
 		gl.enable(gl.DEPTH_TEST);
-
 	} catch (e) {
 	}
 	if (!gl) {
@@ -731,5 +613,3 @@ function start_game(lab) {
 		main_loop();
 	}
 }
-
-

@@ -9,30 +9,17 @@
 //
 
 function LightSource( ) {
-	
 	// A new light source is always on
-	
 	this.isOn = true;
 	
 	// And is directional
-	
 	this.position = [ 0.0, 0.0, 1.0, 0.0 ];
 	
 	// White light
-	
 	this.intensity = [ 1.0, 1.0, 1.0 ];
 	
 	// Ambient component
-	
 	this.ambientIntensity = [ 0.2, 0.2, 0.2 ];
-	
-	// Animation controls
-	
-	this.rotXXOn = false;
-	
-	this.rotYYOn = false;
-	
-	this.rotZZOn = false;
 	
 	// Rotation angles	
 	
@@ -53,38 +40,29 @@ function LightSource( ) {
 //
 
 LightSource.prototype.isOff = function() {
-	
 	return this.isOn == false;
 }
 
 LightSource.prototype.switchOn = function() {
-	
 	this.isOn = true;
 }
 
 LightSource.prototype.switchOff = function() {
-	
 	this.isOn = false;
 }
 
 LightSource.prototype.isDirectional = function() {
-	
 	return this.position[3] == 0.0;
 }
 
 LightSource.prototype.getPosition = function() {
-	
 	return this.position;
 }
 
 LightSource.prototype.setPosition = function( x, y, z, w ) {
-	
 	this.position[0] = x;
-	
 	this.position[1] = y;
-	
 	this.position[2] = z;
-	
 	this.position[3] = w;
 }
 
@@ -94,64 +72,29 @@ LightSource.prototype.getIntensity = function() {
 }
 
 LightSource.prototype.setIntensity = function( r, g, b ) {
-	
 	this.intensity[0] = r;
-	
 	this.intensity[1] = g;
-	
 	this.intensity[2] = b;
 }
 
 LightSource.prototype.getAmbIntensity = function() {
-	
 	return this.ambientIntensity;
 }
 
 LightSource.prototype.setAmbIntensity = function( r, g, b ) {
-	
 	this.ambientIntensity[0] = r;
-	
 	this.ambientIntensity[1] = g;
-	
 	this.ambientIntensity[2] = b;
 }
 
-LightSource.prototype.isRotYYOn = function() {
-	
-	return this.rotYYOn;
-}
-
-LightSource.prototype.switchRotYYOn = function() {
-	
-	this.rotYYOn = true;
-}
-
-LightSource.prototype.switchRotYYOff = function() {
-	
-	this.rotYYOn = false;
-}
 
 LightSource.prototype.getRotAngleYY = function() {
-	
 	return this.rotAngleYY;
 }
 
 LightSource.prototype.setRotAngleYY = function( angle ) {
-	
 	this.rotAngleYY = angle;
 }
-
-LightSource.prototype.getRotationSpeed = function() {
-	
-	return this.rotationSpeed;
-}
-
-LightSource.prototype.setRotationSpeed = function( s ) {
-	
-	this.rotationSpeed = s;
-}
-
-// COMPLETE THE MISSING METHODS !!
 
 
 //----------------------------------------------------------------------------
@@ -161,31 +104,16 @@ LightSource.prototype.setRotationSpeed = function( s ) {
 
 var lightSources = [];
 
+
 // Light source 0
-
 lightSources.push( new LightSource() );
-
-lightSources[0].setPosition( -1.0, 1.0, 1.0, 0.0 );
-
-lightSources[0].setIntensity( 1.0, 0.0, 0.0 );
-
-lightSources[0].setAmbIntensity( 0.2, 0.0, 0.0 );
-
-lightSources[0].switchRotYYOn();
-
-lightSources[0].setRotationSpeed( 1.0 );
+//lightSources[0].setPosition( -1.0, 1.0, 1.0, 0.0 );
+lightSources[lightSources.length-1].setPosition( 0.0, 0.0, 0.0, 1.0 );
+lightSources[lightSources.length-1].setIntensity( 1.0, 1.0, 1.0 );
+lightSources[lightSources.length-1].setAmbIntensity( 0.0, 0.0, 0.0 );
 
 // Light source 1
-
-lightSources.push( new LightSource() );
-
+/*lightSources.push( new LightSource() );
 lightSources[1].setPosition( 10.0, 10.0, 10.0, 1.0 );
-
 lightSources[1].setIntensity( 0.0, 0.0, 1.0 );
-
-lightSources[1].setAmbIntensity( 0.0, 0.0, 0.2 );
-
-lightSources[1].switchRotYYOn();
-
-lightSources[1].setRotationSpeed( -0.5 );
-
+lightSources[1].setAmbIntensity( 0.0, 0.0, 0.2 );*/

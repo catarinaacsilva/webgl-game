@@ -52,8 +52,7 @@ function recSubdivisionMidPoint( v1, v2, v3,
 
 //----------------------------------------------------------------------------
 
-function midPointRefinement( coordsArray, 
-						     recursionDepth ) {
+function midPointRefinement( coordsArray, recursionDepth ) {
 	
 	// Mesh refinement - Higher-level function
 	

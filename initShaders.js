@@ -5,7 +5,6 @@
 
 
 // Getting and compiling a shader
-
 function getShader(gl, id) {
 	var shaderScript = document.getElementById(id);
 	if (!shaderScript) {
@@ -45,7 +44,7 @@ function getShader(gl, id) {
 
 // Initializing the shader program
 
-function initShaders( gl ) {
+function initShaders(gl) {
 	var fragmentShader = getShader(gl, "shader-fs");
 	var vertexShader = getShader(gl, "shader-vs");
 
@@ -59,18 +58,26 @@ function initShaders( gl ) {
 	}
 
 	gl.useProgram(shaderProgram);
-	
-	// Shader input
 
+	// Shader input
 	// Vertex Coordinates 
-	
 	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "vPosition");
 	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
 	// Vertex Normals 
-	
 	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "vNormal");
 	gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
-	
+
+	// Texture coordinates
+	shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+    gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+	// The matrices
+    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+    shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+    
+    // The sampler
+    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+
 	return shaderProgram;
 }

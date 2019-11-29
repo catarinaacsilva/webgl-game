@@ -245,6 +245,7 @@ function drawScene() {
 
 
 	var lightSourceMatrix = mat4();
+	// linhas de cima sem ver se  rotação esta ativa. Problema?? 
 	var lsmUniform = gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].lightSourceMatrix");
 	gl.uniformMatrix4fv(lsmUniform, false, new Float32Array(flatten(lightSourceMatrix)));
 
@@ -478,6 +479,8 @@ function setEventListeners() {
 				break;
 			case 1: texture_set = 1;
 				break;
+			case 2: texture_set = 2;
+				break;
 		}
 	});
 
@@ -528,20 +531,20 @@ function runWebGL() {
 	const brick_wall = load_texture('resources/bricks0.jpg');
 	const rust = load_texture('resources/rust.png');
 	const water00 = load_texture('resources/water00.jpg');
-	
+
 	var medieval = [brick_floor, brick_wall, rust, water00]
 
 	const dirt = load_texture('resources/dirt01.jpg');
 	const grass = load_texture('resources/grass01.jpg');
 	const wood = load_texture('resources/wood00.jpg');
 	const water01 = load_texture('resources/water01.jpg');
-	var nature=[dirt, grass, wood, water01]
+	var nature = [dirt, grass, wood, water01]
 
 	const lava = load_texture('resources/lava.png');
-	const granite00= load_texture('resources/granite00.jpg');
+	const granite00 = load_texture('resources/granite00.jpg');
 	const granite01 = load_texture('resources/granite01.jpg');
 	const water02 = load_texture('resources/water02.jpg');
-	var vulcano=[lava, granite00, granite01, water02]
+	var vulcano = [lava, granite00, granite01, water02]
 
 	webGLTextures.push(medieval, nature, vulcano);
 

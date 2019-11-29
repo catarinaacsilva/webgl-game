@@ -6,7 +6,9 @@
 
 - Browser suports WebGl. You can test on this website
 
-- textures doesn't work on chrome (use Firefox or Edge) or change flags on chrome (security problem)
+- Textures doesn't work on chrome and Firefox. Use edge or change flags on chrome (security problem) or run this command:
+    `NAMEOFBROWSER --allow-file-access-from-files`
+
 
 - Images to textures must be:
 

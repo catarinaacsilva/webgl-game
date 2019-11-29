@@ -1,0 +1,11 @@
+.container{
+    display: flex;
+}
+
+.fixed{
+    width: 640px;
+}
+
+.flex-item{
+    flex-grow: 1;
+}

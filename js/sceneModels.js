@@ -34,11 +34,10 @@ function emptyModelFeatures() {
 	// Texture
 	this.textureCoords = [];
 	this.vertexIndices = [];
-	this.webGLTextureIdx = null;
+	this.textureIdx = null;
 }
 
-
-function simpleCubeModel() {
+function cubeModel(subdivisionDepth = 0) {
 	var cube = new emptyModelFeatures();
 	cube.vertices = [
 		// Front face
@@ -77,12 +76,6 @@ function simpleCubeModel() {
 		-1.0, 1.0, 1.0,
 		-1.0, 1.0, -1.0
 	];
-	computeVertexNormals(cube.vertices, cube.normals);
-	return cube;
-}
-
-function cubeModel(subdivisionDepth = 0) {
-	var cube = new simpleCubeModel();
 	cube.textureCoords = [
 		// Front face
 		0.0, 0.0,
@@ -124,7 +117,7 @@ function cubeModel(subdivisionDepth = 0) {
 		20, 21, 22, 20, 22, 23  // Left face
 	];
 	midPointRefinement(cube.vertices, subdivisionDepth);
-	//computeVertexNormals(cube.vertices, cube.normals);
+	computeVertexNormals(cube.vertices, cube.normals);
 	return cube;
 }
 
@@ -148,6 +141,8 @@ function sphereModel(latBands = 24, longSegs = 45) {
 
 			sphere.vertices.push(x, y, z);
 			sphere.textureCoords.push(u, v);
+			var n = normalize(vec3(x, y, z));
+			sphere.normals.push(n[0], n[1], n[2]);
 		}
 	}
 
@@ -175,12 +170,10 @@ function sphereModel(latBands = 24, longSegs = 45) {
 		}
 		crtLine = nextLine; nextLine += longSegs + 1;
 	}
-	computeVertexNormals(sphere.vertices, sphere.normals);
+	//computeVertexNormals(sphere.vertices, sphere.normals);
+	//console.log('Normals = '+sphere.normals);
 	return sphere;
 }
-
-
-
 
 
 //----------------------------------------------------------------------------
@@ -193,13 +186,43 @@ var sceneModels = [];
 // it will be used to improve the performance of the colision detection...
 var tree = null
 
+// Indices of player and exit
+var idx_player = null, idx_exit = null;
+
 function create_floor(lab) {
 	var rows = lab.length, cols = lab[0].length;
 	sceneModels.push(cubeModel());
 	sceneModels[sceneModels.length - 1].sx = block_scale * cols;
 	sceneModels[sceneModels.length - 1].sy = block_scale * rows;
 	sceneModels[sceneModels.length - 1].sz = floor_z_scale;
-	sceneModels[sceneModels.length - 1].webGLTextureIdx = 0;
+	sceneModels[sceneModels.length - 1].textureIdx = 0;
+}
+
+function create_exit(lab) {
+	var rows = lab.length, cols = lab[0].length;
+	abort = false;
+	for (var i = 0; i < lab.length && !abort; i++) {
+		for (var j = 0; j < lab[i].length && !abort; j++) {
+			if (lab[i][j] == '#') {
+				sceneModels.push(cubeModel());
+				//sceneModels.push(cubeModel());
+				var px = (-block_scale * (cols - 1)) + j * 2 * block_scale,
+					py = (-block_scale * (rows - 1)) + i * 2 * block_scale;
+				sceneModels[sceneModels.length - 1].tx = px;
+				sceneModels[sceneModels.length - 1].ty = py;
+				sceneModels[sceneModels.length - 1].tz = exit_scale_z + floor_z_scale;
+				sceneModels[sceneModels.length - 1].sx = exit_scale_x;
+				sceneModels[sceneModels.length - 1].sy = exit_scale_y;
+				sceneModels[sceneModels.length - 1].sz = exit_scale_z;
+				sceneModels[sceneModels.length - 1].textureIdx = 3;
+
+				// the loop can break
+				// only one exit allowed...
+				abort = true;
+				idx_exit = sceneModels.length - 1;
+			}
+		}
+	}
 }
 
 function create_player(lab) {
@@ -215,15 +238,15 @@ function create_player(lab) {
 				sceneModels[sceneModels.length - 1].tx = px;
 				sceneModels[sceneModels.length - 1].ty = py;
 				sceneModels[sceneModels.length - 1].tz = player_scale + floor_z_scale;
-
 				sceneModels[sceneModels.length - 1].sx = player_scale;
 				sceneModels[sceneModels.length - 1].sy = player_scale;
 				sceneModels[sceneModels.length - 1].sz = player_scale;
-				sceneModels[sceneModels.length - 1].webGLTextureIdx = 2;
+				sceneModels[sceneModels.length - 1].textureIdx = 2;
 
 				// the loop can break
 				// only one player allowed...
 				abort = true;
+				idx_player = sceneModels.length - 1;
 			}
 		}
 	}
@@ -249,7 +272,7 @@ function create_walls(lab) {
 				sceneModels[sceneModels.length - 1].sx = block_scale;
 				sceneModels[sceneModels.length - 1].sy = block_scale;
 				sceneModels[sceneModels.length - 1].sz = block_scale;
-				sceneModels[sceneModels.length - 1].webGLTextureIdx = 1;
+				sceneModels[sceneModels.length - 1].textureIdx = 1;
 
 				// Load and create the texture
 				//sceneModels[sceneModels.length - 1].webGLTexture = load_texture('resources/bricks.jpg');

@@ -4,53 +4,41 @@
 <head>
 	<title>WebGL Project</title>
 	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-
-	
-
 	<script id="shader-vs" type="x-shader/x-vertex">
 
 		attribute vec3 vPosition;
 		attribute vec2 aTextureCoord;
+		
 		uniform mat4 uMVMatrix;
 		uniform mat4 uPMatrix;
+		
 		varying vec2 vTextureCoord;
 		varying vec4 fColor;
 	
 		// For the Phong Illumination Model 
 		attribute vec3 vNormal;
 		uniform vec4 viewerPosition;
-		// Array of lights
 		
+		// Array of lights
 		#define MAX_LIGHTS 5
-	
 		uniform int numLights;
 	
 		uniform struct Light {
-			int isOn;
 			vec4 position;
 			mat4 lightSourceMatrix; // for animation
 			vec3 intensities; //a.k.a the color of the light
 			vec3 ambientIntensities;
 		} allLights[MAX_LIGHTS];
 	
+		// The material properties
 		uniform vec3 k_ambient;
-		
 		uniform vec3 k_diffuse;
-		
 		uniform vec3 k_specular;
-		
 		uniform float shininess;
 			
 		void main(void) {
-			
-			// To allow seeing the points drawn
-			
-			//gl_PointSize = 5.0;
-			
 			// Just converting the (x,y,z) vertices to Homogeneous Coord.
-			
 			// And multiplying by the Projection and the Model-View matrix
-			
 			gl_Position = uPMatrix * uMVMatrix * vec4(vPosition, 1.0);
 			
 			// For the fragment shader
@@ -67,78 +55,49 @@
 			for( int i = 0; i < MAX_LIGHTS; i++ ) 
 			{
 				if( i == numLights )
-				
 					break;
 					
-				// Switched off ?
-				
-				if( allLights[i].isOn == 0 )
-				
-					continue;
-					
 				// Ambient component is constant for each light source
-			
 				vec4 ambient = vec4( k_ambient * allLights[i].ambientIntensities, 1.0 );
-		   
 				fColor += ambient;
 			
 			   // vector from vertex position to light source
-		
 			   vec3 L;
 			
 			   // check for directional light
-		
 			   if(allLights[i].position.w == 0.0) 
-			
 					L = normalize( (allLights[i].lightSourceMatrix * allLights[i].position).xyz );
-			
 			   else 
-			
 					L = normalize( (allLights[i].lightSourceMatrix * allLights[i].position).xyz - pos );
-				
+
 			   // Vector from the vertex position to the eye
-			
 			   vec3 E;
 			
 			   // The viewer is at the origin or at an indefinite distance
 			   // on the ZZ axis
-			
 			   if(viewerPosition.w == 1.0) 
-			
 				   // At the origin
-				
 				   E = -normalize( pos );
 			
 			   else 
-			
 				   // On the ZZ axis
-				
 				   E = vec3(0,0,1);
 				
 			   // Halfway vector
-		
 			   vec3 H = normalize( L + E );
 	
 			   // Transform vertex normal into eye coordinates
-		
 			   vec4 N = normalize( uMVMatrix * vec4(vNormal, 0.0));
 	
 			   // Compute terms in the illumination equation
-			
-			   // Diffuse component 
-			
+			   // Diffuse component
 			   float dotProductLN = L[0] * N[0] + L[1] * N[1] + L[2] * N[2]; 
-			
 			   float cosNL = max( dotProductLN, 0.0 );
-		
 			   vec4  diffuse = vec4( k_diffuse * cosNL * allLights[i].intensities, 1.0 );
 			
 			   // Specular component
-	
 			   float dotProductNH = N[0] * H[0] + N[1] * H[1] + N[2] * H[2]; 
-			
 			   float cosNH = pow( max( dotProductNH, 0.0 ), shininess );
-		
 			   vec4  specular = vec4( k_specular * cosNH * allLights[i].intensities, 1.0 );
 		
 			   if( dotProductLN < 0.0 ) {
@@ -151,9 +110,8 @@
 		}
 		
 	</script>
-	
+
 	<script id="shader-fs" type="x-shader/x-fragment">
-	
 		precision mediump float;
 		
 		varying vec4 fColor;
@@ -161,51 +119,97 @@
 		uniform sampler2D uSampler;
 		
 		void main(void) {
-			// Using the passed vertex color
-			//gl_FragColor = fColor;
-			gl_FragColor = fColor * texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+			gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t)) * fColor;
 		}
 	
 	</script>
 
+	<!-- Default CSS file -->
+	<link rel="stylesheet" href="css/default.css">
+
 	<!-- The JS files -->
 
 	<!-- CSV library -->
-	<script type="text/javascript" src="csv.js"></script>
+	<script type="text/javascript" src="js/csv.js"></script>
 
 	<!-- kD-Tree library -->
-	<script type="text/javascript" src="kdTree-min.js"></script>
+	<script type="text/javascript" src="js/kdTree-min.js"></script>
 
 	<!-- Some useful functions for browser compatibility -->
-	<script type="text/javascript" src="webgl-utils.js"></script>
+	<script type="text/javascript" src="js/webgl-utils.js"></script>
 
 	<!-- Handling vectors and matrices -->
-	<script type="text/javascript" src="maths.js"></script>
+	<script type="text/javascript" src="js/maths.js"></script>
 
 	<!-- Processing triangle mesh models -->
-	<script type="text/javascript" src="models.js"></script>
+	<script type="text/javascript" src="js/models.js"></script>
 
 	<!-- Creating the light sources -->
-	<script type="text/javascript" src="lightSources.js"></script>
+	<script type="text/javascript" src="js/lightSources.js"></script>
 
 	<!-- Creating the Textures -->
-	<script type="text/javascript" src="textures.js"></script>
-	
+	<script type="text/javascript" src="js/textures.js"></script>
+
 	<!-- Creating the scene models -->
-	<script type="text/javascript" src="sceneModels.js"></script>
-	
+	<script type="text/javascript" src="js/sceneModels.js"></script>
+
 	<!-- WebGL code -->
-	<script type="text/javascript" src="initShaders.js"></script>
-	<script type="text/javascript" src="WebGL.js"></script>
+	<script type="text/javascript" src="js/initShaders.js"></script>
+	<script type="text/javascript" src="js/WebGL.js"></script>
 </head>
 
 <body onload="runWebGL();">
 	<div style="text-align: center">
 		<canvas id="my-canvas" style="border:1px solid #000000;" width="1280" height="720"></canvas>
-		<p id="fps"> fps: </p>
+		<div>
+			<div class="container" style="text-align: center; width: 1280px; height: 100px; margin: 0 auto;">
+				<div class="fixed">
+					<table style="text-align: left">
+						<tr>
+							<th>FPS</th>
+							<td id="fps">0</td>
+						</tr>
+						<tr>
+							<th>Vx</th>
+							<td id="vx">0</td>
+						</tr>
+						<tr>
+							<th>Vy</th>
+							<td id="vy">0</td>
+						</tr>
+					</table>
+				</div>
+				<div class="flex-item">
+					<table style="text-align: left">
+						<tr>
+							<th>Choose the <b>projection type</b>:</th>
+							<td><select id="projection-selection">
+									<option value="0">Orthogonal Projection</option>
+									<option value="1">Perspective Projection</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th>Choose the <b>Texture set</b>:</th>
+							<td><select id="texture-selection">
+									<option value="0">Medieval</option>
+									<option value="1">Nature</option>
+									<option value="1">Volcano</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th></th>
+							<td><button id="reset-button">Reset</button></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+		</div>
 		<div id="drop_zone"
 			style="text-align: center; background-color: white; outline: 2px dashed black; width: 1280px; height: 100px; margin: 0 auto;">
-			Drop files here
+			Drop files here:
 		</div>
 	</div>
 </body>

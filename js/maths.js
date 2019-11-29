@@ -19,6 +19,11 @@ function radians( degrees ) {
     return degrees * Math.PI / 180.0;
 }
 
+function degrees(radians) {
+	const pi = Math.PI;
+	return radians * (180 / pi);
+}
+
 //----------------------------------------------------------------------------
 //
 //  Vector Constructors
@@ -548,15 +553,14 @@ function computeCentroid( p1, p2, p3 )
 
 function normalize( v )
 {
-    var squaresSum = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-    
-    var norm = Math.sqrt( squaresSum );
+    const squaresSum = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+    const norm = Math.sqrt( squaresSum );
     
     v[0] /= norm;
-    
     v[1] /= norm;
-    
     v[2] /= norm;
+
+    return v;
 }
 
 //----------------------------------------------------------------------------

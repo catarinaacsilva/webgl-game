@@ -14,12 +14,15 @@ var triangleVertexPositionBuffer = null;
 var triangleVertexNormalBuffer = null;
 
 // World details
-var player_scale = 0.05;
-var floor_z_scale = 0.01;
-var block_scale = 0.1;
+const player_scale = 0.05;
+const floor_z_scale = 0.01;
+const block_scale = 0.1;
 var lab_rows = 0;
 var lab_cols = 0;
 var first = true;
+const exit_scale_x = 0.01;
+const exit_scale_y = 0.05;
+const exit_scale_z = 0.1;
 
 // The GLOBAL transformation parameters
 var globalAngleYY = 0.0;
@@ -38,7 +41,10 @@ var world_rz = 0.0, world_rx = 0.0, world_ry = 0.0;
 var world_width = 0.0, world_height = 0.0;
 
 // To allow choosing the projection type
-var projectionType = 1;
+var projectionType = 0;
+
+// To allow choosing the texture set
+var texture_set = 0;
 
 // It has to be updated according to the projection type
 var pos_Viewer = [0.0, 0.0, 0.0, 1.0];
@@ -66,7 +72,11 @@ function countFrames(now) {
 			fps = frameCount;
 			frameCount = 0;
 			elapsedTime -= 1000;
-			document.getElementById('fps').innerHTML = 'fps:' + fps;
+
+			// update all the info...
+			document.getElementById('fps').innerHTML = fps;
+			document.getElementById('vx').innerHTML = ax;
+			document.getElementById('vy').innerHTML = ay;
 		}
 	}
 }
@@ -116,10 +126,8 @@ function initBuffers(model) {
 
 	// Vertex indices
 	triangleVertexIndexBuffer = gl.createBuffer();
-	//gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexIndexBuffer);
-	//gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(model.vertexIndices), gl.STATIC_DRAW);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleVertexIndexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.vertexIndices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.vertexIndices), gl.STATIC_DRAW);
 	triangleVertexIndexBuffer.itemSize = 1;
 	triangleVertexIndexBuffer.numItems = model.vertexIndices.length;
 }
@@ -130,7 +138,6 @@ function initBuffers(model) {
 function drawModel(model, mvMatrix) {
 	// The the global model transformation is an input
 	// Concatenate with the particular model transformations
-	// Pay attention to transformation order !!
 	mvMatrix = mult(mvMatrix, translationMatrix(model.tx, model.ty, model.tz));
 	mvMatrix = mult(mvMatrix, rotationZZMatrix(model.rotAngleZZ));
 	mvMatrix = mult(mvMatrix, rotationYYMatrix(model.rotAngleYY));
@@ -142,25 +149,13 @@ function drawModel(model, mvMatrix) {
 	gl.uniformMatrix4fv(mvUniform, false, new Float32Array(flatten(mvMatrix)));
 
 	// Associating the data to the vertex shader
-	// This can be done in a better way !!
 	// Vertex Coordinates and Vertex Normal Vectors
 	initBuffers(model);
 
-	//gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-	//gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-	// Textures
-	//gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexTextureCoordBuffer);
-	//gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, triangleVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	
-	//use texture 0
+	//use texture
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, webGLTextures[model.webGLTextureIdx]);
+	gl.bindTexture(gl.TEXTURE_2D, webGLTextures[texture_set][model.textureIdx]);
 	gl.uniform1i(shaderProgram.samplerUniform, 0);
-
-	// The vertex indices
-	//gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexIndexBuffer);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleVertexIndexBuffer);
 
 	// Material properties
 	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_ambient"), flatten(model.kAmbi));
@@ -174,12 +169,11 @@ function drawModel(model, mvMatrix) {
 
 	//Light Sources
 	for (var i = 0; i < lightSources.length; i++) {
-		gl.uniform1i(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].isOn"),lightSources[i].isOn);
-		gl.uniform4fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].position"),flatten(lightSources[i].getPosition()));
-		gl.uniform3fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].intensities"),flatten(lightSources[i].getIntensity()));
+		gl.uniform1i(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].isOn"), lightSources[i].isOn);
+		gl.uniform4fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].position"), flatten(lightSources[i].getPosition()));
+		gl.uniform3fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].intensities"), flatten(lightSources[i].getIntensity()));
 	}
 
-	//gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
 	gl.drawElements(gl.TRIANGLES, triangleVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 }
 
@@ -191,16 +185,16 @@ function drawScene() {
 	var pMatrix;
 	var mvMatrix = mat4();
 	// Clearing the frame-buffer and the depth-buffer
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	//gl.clear(gl.COLOR_BUFFER_BIT);
-	
+	//gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+
 	// Computing the Projection Matrix
 	if (projectionType == 0) {
 		// For now, the default orthogonal view volume
 		pMatrix = ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 		// Global transformation !!
 		globalTz = 0.0;
-		// NEW --- The viewer is on the ZZ axis at an indefinite distance
+		// The viewer is on the ZZ axis at an indefinite distance
 		pos_Viewer[0] = pos_Viewer[1] = pos_Viewer[3] = 0.0;
 		pos_Viewer[2] = 1.0;
 	}
@@ -210,9 +204,11 @@ function drawScene() {
 		// Viewer is at (0,0,0)
 		// Ensure that the model is "inside" the view volume
 		pMatrix = perspective(45, 1, 0.05, 15);
-		// Global transformation !!
-		globalTz = -2.5;
-		// NEW --- The viewer is on (0,0,0)
+		// Global transformation
+		if (globalTz > -2.5) {
+			globalTz = -2.5;
+		}
+		// The viewer is on (0,0,0)
 		pos_Viewer[0] = pos_Viewer[1] = pos_Viewer[2] = 0.0;
 		pos_Viewer[3] = 1.0;
 	}
@@ -262,12 +258,7 @@ function drawScene() {
 //
 // Move player
 
-function radians_to_degrees(radians) {
-	var pi = Math.PI;
-	return radians * (180 / pi);
-}
-
-function move_player(idx = 1) {
+function move_player(idx = idx_player) {
 	vx += ax;
 	vy += ay;
 
@@ -322,9 +313,9 @@ function move_player(idx = 1) {
 	delta_theta_x = (px - px0) / player_scale;
 	delta_theta_y = (py - py0) / player_scale;
 
-	sceneModels[idx].rotAngleYY += radians_to_degrees(delta_theta_x);
-	sceneModels[idx].rotAngleXX += radians_to_degrees(-delta_theta_y);
-	lightSources[lightSources.length-1].setPosition( px, py, sceneModels[idx].tz, 1.0 );
+	sceneModels[idx].rotAngleYY += degrees(delta_theta_x);
+	sceneModels[idx].rotAngleXX += degrees(-delta_theta_y);
+	lightSources[lightSources.length - 1].setPosition(px, py, sceneModels[idx].tz, 1.0);
 }
 
 function clamp(value, minimum, maximum) {
@@ -344,6 +335,13 @@ function collision(cx, cy, rx, ry) {
 	}
 }
 
+function animate(idx = idx_exit) {
+	const delta = 0.001;
+	if (idx != null) {
+		sceneModels[idx].rotAngleZZ += degrees(delta * delta_time);
+	}
+}
+
 
 //----------------------------------------------------------------------------
 //
@@ -352,6 +350,7 @@ function collision(cx, cy, rx, ry) {
 function main_loop(now) {
 	countFrames(now);
 	move_player();
+	animate();
 	drawScene();
 	requestAnimFrame(main_loop);
 }
@@ -414,6 +413,14 @@ function loadHandler(event) {
 function setEventListeners() {
 	// Setup mouse
 	var canvas = document.getElementById("my-canvas");
+
+	canvas.addEventListener("wheel", event => {
+		const delta = Math.sign(event.deltaY);
+		//console.log(globalTz);
+		globalTz += delta;
+	});
+
+
 	world_width = canvas.width;
 	world_height = canvas.height;
 	canvas.addEventListener('mousemove', function (e) {
@@ -427,27 +434,58 @@ function setEventListeners() {
 
 
 	// Setup keys...
-	window.addEventListener('keydown', function(event) {
+	window.addEventListener('keydown', function (event) {
 		event.preventDefault();
 		delta = 5;
-		
+
 		switch (event.keyCode) {
-		  case 37:
-			baseYYRot -= delta;
-			
-			break;
-		  case 38:
-			baseXXRot -= delta;
-			break;
-		  case 39:
-			baseYYRot += delta;
-			break;
-		  case 40:
-			baseXXRot += delta;
-			break;
+			case 37:
+				baseYYRot -= delta;
+				break;
+			case 38:
+				baseXXRot -= delta;
+				break;
+			case 39:
+				baseYYRot += delta;
+				break;
+			case 40:
+				baseXXRot += delta;
+				break;
 		}
 	}
 	);
+
+	var projection = document.getElementById("projection-selection");
+	projection.addEventListener("click", function () {
+		console.log("Projection Selection: " + projection.selectedIndex);
+
+		// Getting the selection
+		var p = projection.selectedIndex;
+		switch (p) {
+			case 0: projectionType = 0;
+				break;
+			case 1: projectionType = 1;
+				break;
+		}
+	});
+
+	var texture = document.getElementById("texture-selection");
+	texture.addEventListener("click", function () {
+		// Getting the selection
+		var t = texture.selectedIndex;
+		switch (t) {
+			case 0: texture_set = 0;
+				break;
+			case 1: texture_set = 1;
+				break;
+		}
+	});
+
+	document.getElementById("reset-button").onclick = function () {
+		baseXXRot = -50;
+		baseYYRot = 0;
+		baseZZRot = 0;
+	};
 }
 
 //----------------------------------------------------------------------------
@@ -483,12 +521,30 @@ function runWebGL() {
 	var canvas = document.getElementById("my-canvas");
 	initWebGL(canvas);
 	shaderProgram = initShaders(gl);
-	
+
 	// Load textures...
-	webGLTextures.push(load_texture('resources/dirt01.jpg'));
-	webGLTextures.push(load_texture('resources/grass01.jpg'));
-	webGLTextures.push(load_texture('resources/metal.png'));
+
+	const brick_floor = load_texture('resources/floor00.jpg');
+	const brick_wall = load_texture('resources/bricks0.jpg');
+	const rust = load_texture('resources/rust.png');
+	const water00 = load_texture('resources/water00.jpg');
 	
+	var medieval = [brick_floor, brick_wall, rust, water00]
+
+	const dirt = load_texture('resources/dirt01.jpg');
+	const grass = load_texture('resources/grass01.jpg');
+	const wood = load_texture('resources/wood00.jpg');
+	const water01 = load_texture('resources/water01.jpg');
+	var nature=[dirt, grass, wood, water01]
+
+	const lava = load_texture('resources/lava.png');
+	const granite00= load_texture('resources/granite00.jpg');
+	const granite01 = load_texture('resources/granite01.jpg');
+	const water02 = load_texture('resources/water02.jpg');
+	var vulcano=[lava, granite00, granite01, water02]
+
+	webGLTextures.push(medieval, nature, vulcano);
+
 	setEventListeners();
 }
 
@@ -506,6 +562,7 @@ function start_game(lab) {
 	lab_cols = lab[0].length;
 	create_floor(lab);
 	create_player(lab);
+	create_exit(lab);
 	create_walls(lab);
 	if (first) {
 		first = false;

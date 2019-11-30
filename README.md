@@ -6,7 +6,8 @@
 
 - Browser suports WebGl. You can test on this website
 
-- textures doesn't work on chrome (use Firefox or Edge) or change flags on chrome (security problem)
+- Textures doesn't work on chrome (use Firefox or Edge), change flags on chrome (security problem) or run:
+    `./run.sh`
 
 - Images to textures must be:
 
@@ -16,7 +17,17 @@
 
 ## Run
 
-Just open html file with browser
+Just open html file (WebGL.html) with browser and load csv file with labirinth. With mouse moves the ball until the destination.
+
+## Manager
+
+- **Mouse**: incline the world
+
+- **Mouse scroll**: move away the world (on perspective projection)
+
+- **Keyboard directional keys**: move the world just to visualization
+
+- **Reset bottom**: remove the world rotation
 
 
 ## Authors

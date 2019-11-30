@@ -54,9 +54,23 @@ var webGLTextures = [];
 
 //----------------------------------------------------------------------------
 var elapsedTime = 0;
+var countTime = 0;
 var frameCount = 0;
 var lastfpsTime = null;
 var delta_time = 0;
+
+function msToTime(duration) {
+	var milliseconds = parseInt((duration % 1000) / 100),
+		seconds = Math.floor((duration / 1000) % 60),
+		minutes = Math.floor((duration / (1000 * 60)) % 60),
+		hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+	hours = (hours < 10) ? "0" + hours : hours;
+	minutes = (minutes < 10) ? "0" + minutes : minutes;
+	seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+	return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+}
 
 function countFrames(now) {
 	if (now) {
@@ -66,17 +80,19 @@ function countFrames(now) {
 		frameCount++;
 		delta_time = now - lastfpsTime
 		elapsedTime += delta_time;
+		countTime += delta_time;
 		lastfpsTime = now;
 		//console.log('Now = ' + now + ' lastfpsTime = ' + lastfpsTime + ' ET =' + elapsedTime);
-		if (elapsedTime >= 1000) {
+		if (countTime >= 1000) {
 			fps = frameCount;
 			frameCount = 0;
-			elapsedTime -= 1000;
+			countTime -= 1000;
 
 			// update all the info...
+			document.getElementById('time').innerHTML = msToTime(elapsedTime);
 			document.getElementById('fps').innerHTML = fps;
-			document.getElementById('vx').innerHTML = ax;
-			document.getElementById('vy').innerHTML = ay;
+			document.getElementById('vx').innerHTML = ax.toExponential(2);
+			document.getElementById('vy').innerHTML = ay.toExponential(2);
 		}
 	}
 }
@@ -158,10 +174,10 @@ function drawModel(model, mvMatrix) {
 	gl.uniform1i(shaderProgram.samplerUniform, 0);
 
 	// Material properties
-	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_ambient"), flatten(model.kAmbi));
-	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_diffuse"), flatten(model.kDiff));
-	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_specular"), flatten(model.kSpec));
-	gl.uniform1f(gl.getUniformLocation(shaderProgram, "shininess"), model.nPhong);
+	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_ambient"), flatten(model.kAmbi[texture_set]));
+	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_diffuse"), flatten(model.kDiff[texture_set]));
+	gl.uniform3fv(gl.getUniformLocation(shaderProgram, "k_specular"), flatten(model.kSpec[texture_set]));
+	gl.uniform1f(gl.getUniformLocation(shaderProgram, "shininess"), model.nPhong[texture_set]);
 
 	// Light Sources
 	var numLights = lightSources.length;
@@ -169,9 +185,9 @@ function drawModel(model, mvMatrix) {
 
 	//Light Sources
 	for (var i = 0; i < lightSources.length; i++) {
-		gl.uniform1i(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].isOn"), lightSources[i].isOn);
 		gl.uniform4fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].position"), flatten(lightSources[i].getPosition()));
 		gl.uniform3fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].intensities"), flatten(lightSources[i].getIntensity()));
+		gl.uniform3fv(gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].ambientIntensities"), flatten(lightSources[i].getAmbIntensity()));
 	}
 
 	gl.drawElements(gl.TRIANGLES, triangleVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
@@ -185,11 +201,10 @@ function drawScene() {
 	var pMatrix;
 	var mvMatrix = mat4();
 	// Clearing the frame-buffer and the depth-buffer
-	//gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	// Computing the Projection Matrix
-	if (projectionType == 0) {
+	if (projectionType == 1) {
 		// For now, the default orthogonal view volume
 		pMatrix = ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 		// Global transformation !!
@@ -228,26 +243,14 @@ function drawScene() {
 
 	// Updating the position of the light sources, if required
 	// FOR EACH LIGHT SOURCE
-	/*for (var i = 0; i < lightSources.length; i++) {
-		// Animating the light source, if defined
-		
-		if (!lightSources[i].isOff()) {
-			// COMPLETE THE CODE FOR THE OTHER ROTATION AXES
-			if (lightSources[i].isRotYYOn()) {
-				lightSourceMatrix = mult(lightSourceMatrix, rotationYYMatrix(lightSources[i].getRotAngleYY()));
-			}
-		}
-
-		// Passing the Light Souree Matrix to apply
+	for (var i = 0; i < lightSources.length; i++) {
+		var lightSourceMatrix = mat4();
+		lightSourceMatrix = mult(lightSourceMatrix, rotationZZMatrix(lightSources[i].getRotAngleZZ()));
+		lightSourceMatrix = mult(lightSourceMatrix, rotationYYMatrix(lightSources[i].getRotAngleYY()));
+		lightSourceMatrix = mult(lightSourceMatrix, rotationXXMatrix(lightSources[i].getRotAngleXX()));
 		var lsmUniform = gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].lightSourceMatrix");
 		gl.uniformMatrix4fv(lsmUniform, false, new Float32Array(flatten(lightSourceMatrix)));
-	}*/
-
-
-	var lightSourceMatrix = mat4();
-	// linhas de cima sem ver se  rotação esta ativa. Problema?? 
-	var lsmUniform = gl.getUniformLocation(shaderProgram, "allLights[" + String(i) + "].lightSourceMatrix");
-	gl.uniformMatrix4fv(lsmUniform, false, new Float32Array(flatten(lightSourceMatrix)));
+	}
 
 	// Instantianting all scene models
 	for (var i = 0; i < sceneModels.length; i++) {
@@ -279,8 +282,10 @@ function move_player(idx = idx_player) {
 		vy = 0;
 	} else {
 		// check collisions with the world walls (closest wall)
+		// broad phase
 		var candidates = tree.nearest({ x: px0, y: py }, 1, player_scale + Math.sqrt(block_scale * block_scale));
 		if (candidates.length > 0) {
+			// narrow phase
 			if (collision(px0, py, candidates[0][0].x, candidates[0][0].y)) {
 				py = py0;
 				vy = 0;
@@ -298,8 +303,10 @@ function move_player(idx = idx_player) {
 		vx = 0;
 	} else {
 		// check collisions with the world walls (closest wall)
+		// broad phase
 		var candidates = tree.nearest({ x: px, y: py }, 1, player_scale + Math.sqrt(block_scale * block_scale));
 		if (candidates.length > 0) {
+			// narrow phase
 			if (collision(px, py, candidates[0][0].x, candidates[0][0].y)) {
 				px = px0;
 				vx = 0;
@@ -336,10 +343,27 @@ function collision(cx, cy, rx, ry) {
 	}
 }
 
-function animate(idx = idx_exit) {
-	const delta = 0.001;
-	if (idx != null) {
-		sceneModels[idx].rotAngleZZ += degrees(delta * delta_time);
+// Animate the exit portal
+function animate(idx = idx_exit, delta = 0.001, scale = 4) {
+	sceneModels[idx].rotAngleZZ += degrees(delta * delta_time);
+	sceneModels[idx].tz += Math.sin(radians(Math.trunc(elapsedTime / scale) % 360)) * delta;
+}
+
+// Check if the ball reach the protal
+function finish() {
+	// broad phase
+	var d = Math.sqrt(Math.pow(sceneModels[idx_player].tx - sceneModels[idx_exit].tx, 2) +
+		Math.pow(sceneModels[idx_player].ty - sceneModels[idx_exit].ty, 2));
+	if (d < player_scale + Math.sqrt(block_scale * block_scale)) {
+		// narrow phase
+		if (collision(sceneModels[idx_player].tx, sceneModels[idx_player].ty,
+			sceneModels[idx_exit].tx, sceneModels[idx_exit].ty)) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
 	}
 }
 
@@ -350,10 +374,24 @@ function animate(idx = idx_exit) {
 
 function main_loop(now) {
 	countFrames(now);
-	move_player();
-	animate();
+	if (idx_player != null) {
+		move_player();
+	}
+	if (idx_exit != null) {
+		animate();
+	}
 	drawScene();
-	requestAnimFrame(main_loop);
+	if (idx_player != null && idx_exit != null) {
+		if (finish()) {
+			alert('Great Job!!!');
+			reset_scene();
+			first = true;
+		} else {
+			requestAnimFrame(main_loop);
+		}
+	} else {
+		requestAnimFrame(main_loop);
+	}
 }
 
 
@@ -526,7 +564,6 @@ function runWebGL() {
 	shaderProgram = initShaders(gl);
 
 	// Load textures...
-
 	const brick_floor = load_texture('resources/floor00.jpg');
 	const brick_wall = load_texture('resources/bricks0.jpg');
 	const rust = load_texture('resources/rust.png');
@@ -552,12 +589,27 @@ function runWebGL() {
 }
 
 function reset_scene() {
-	// reset variables and scene
+	// reset scene models, variables kD-Tree
+	sceneModels = [];
+	elapsedTime = 0;
+	countTime = 0;
+	lastfpsTime = null;
+	delta_time = 0;
+	idx_exit = null;
+	idx_player = null;
+	tree = null;
 	vx = 0;
 	vy = 0;
 	ax = 0;
 	ay = 0;
-	sceneModels = [];
+
+	// update all the info...
+	document.getElementById('time').innerHTML = msToTime(elapsedTime);
+	document.getElementById('fps').innerHTML = 0;
+	document.getElementById('vx').innerHTML = ax.toExponential(2);
+	document.getElementById('vy').innerHTML = ay.toExponential(2);
+
+	console.log('Reset Scene...')
 }
 
 function start_game(lab) {

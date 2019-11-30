@@ -169,13 +169,8 @@ function moveToSphericalSurface(coordsArray) {
 
     for (origIndex = 0; origIndex < arrayLength; origIndex += 3) {
         var v = coordsArray.slice(origIndex, origIndex + 3);
-
         normalize(v);
-
-        var i;
-
-        for (i = 0; i < 3; i++) {
-
+        for (var i = 0; i < 3; i++) {
             coordsArray[origIndex + i] = v[i];
         }
     }

@@ -39,7 +39,7 @@
 		void main(void) {
 			// Just converting the (x,y,z) vertices to Homogeneous Coord.
 			// And multiplying by the Projection and the Model-View matrix
-			gl_Position = uPMatrix * uMVMatrix * vec4(vPosition, 1.0);
+			gl_Position = uPMatrix * (uMVMatrix * vec4(vPosition, 1.0));
 			
 			// For the fragment shader
 			vTextureCoord = aTextureCoord;
@@ -48,7 +48,7 @@
 			// pos is vertex position after applying the global transformation
 			vec3 pos = (uMVMatrix * vec4(vPosition, 1.0)).xyz;
 		
-			// NEW - ITERATING THROUGH ALL LIGHT SOURCES
+			// ITERATING THROUGH ALL LIGHT SOURCES
 			fColor = vec4(0.0, 0.0, 0.0, 0.0);	// To add all illumination components
 			 
 			// THE FOR LOOP NEEDS A STOPPING CONSTANT VALUE
@@ -87,8 +87,11 @@
 			   vec3 H = normalize( L + E );
 	
 			   // Transform vertex normal into eye coordinates
+			   // Added projection matrix here...
+			   //vec4 N = normalize( uPMatrix * uMVMatrix * vec4(vNormal, 0.0));
 			   vec4 N = normalize( uMVMatrix * vec4(vNormal, 0.0));
-	
+
+
 			   // Compute terms in the illumination equation
 			   // Diffuse component
 			   float dotProductLN = L[0] * N[0] + L[1] * N[1] + L[2] * N[2]; 
@@ -166,6 +169,10 @@
 				<div class="fixed">
 					<table style="text-align: left">
 						<tr>
+							<th>Time</th>
+							<td id="time">0</td>
+						</tr>
+						<tr>
 							<th>FPS</th>
 							<td id="fps">0</td>
 						</tr>
@@ -184,8 +191,8 @@
 						<tr>
 							<th>Choose the <b>projection type</b>:</th>
 							<td><select id="projection-selection">
-									<option value="0">Orthogonal Projection</option>
-									<option value="1">Perspective Projection</option>
+									<option value="0">Perspective Projection</option>
+									<option value="1">Orthogonal Projection</option>
 								</select>
 							</td>
 						</tr>

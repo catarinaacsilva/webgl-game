@@ -74,6 +74,22 @@ LightSource.prototype.setRotAngleYY = function (angle) {
 	this.rotAngleYY = angle;
 }
 
+LightSource.prototype.getRotAngleXX = function () {
+	return this.rotAngleXX;
+}
+
+LightSource.prototype.setRotAngleXX = function (angle) {
+	this.rotAngleXX = angle;
+}
+
+LightSource.prototype.getRotAngleZZ = function () {
+	return this.rotAngleZZ;
+}
+
+LightSource.prototype.setRotAngleZZ = function (angle) {
+	this.rotAngleZZ = angle;
+}
+
 
 //----------------------------------------------------------------------------
 //
@@ -83,12 +99,12 @@ var lightSources = [];
 
 // Light source 0
 lightSources.push(new LightSource());
-lightSources[lightSources.length - 1].setPosition(0.0, 5.0, 0.0, 1.0); // para onde esta a apontar as luzes? é preciso mexer nos angulos? 
-lightSources[lightSources.length - 1].setIntensity(1.0, 1.0, 1.0); // luz branca
-lightSources[lightSources.length - 1].setAmbIntensity(0.2, 0.2, 0.2); // luz branca
+lightSources[lightSources.length - 1].setPosition(0.0, 0.0, 10.0, 0.0);
+lightSources[lightSources.length - 1].setIntensity(1.0, 1.0, 1.0);
+lightSources[lightSources.length - 1].setAmbIntensity(1.0, 1.0, 1.0);
 
 // Light source 1
-lightSources.push(new LightSource());
+/*lightSources.push(new LightSource());
 lightSources[lightSources.length - 1].setPosition(10.0, 10.0, 10.0, 1.0);
 lightSources[lightSources.length - 1].setIntensity(1.0, 1.0, 1.0);
-lightSources[lightSources.length - 1].setAmbIntensity(0.2, 0.2, 0.2);
+lightSources[lightSources.length - 1].setAmbIntensity(1.0, 1.0, 1.0);*/
